@@ -6,35 +6,82 @@ using UnityEngine.Events;
 [RequireComponent(typeof(Collider2D))]
 public abstract class FishBase : MonoBehaviour
 {
+
+    [SerializeField] private Transform _partsRoot;
     protected Rigidbody2D _rigidbody;
     protected Collider2D _collider;
-    public CharaParam _param;
+    public CharaParam Param { get; set; }
 
+    List<GameObject> _parts;
     Vector2 _direction;//向き
+    GameObject _target;//敵
+
 
 
     protected abstract void Init();
     protected abstract void Move();
-    //protected abstract void OnDamage();
+	//protected abstract void OnDamage();
+
+    public void InitData(List<PartsData> parts){
+        
+        Param = new CharaParam()
+        {
+
+            Height =  + FishMasterData.GetBody(parts[0]._id).Height,
+            Attack = FishMasterData.GetBody(parts[0]._id).Attack + FishMasterData.GetEye(parts[1]._id).Attack,
+            Weight = FishMasterData.GetBody(parts[0]._id).Weight,
+            Aggressive = FishMasterData.GetEye(parts[1]._id).Aggressive,
+            Hp = 0,
+            Speed = 0,
+            Agility = 0
+        };
 
 
-    void Start()
+        for (int i = 2; i < parts.Count;i ++){
+            Param.Weight += FishMasterData.GetFin(parts[i]._id).Weight;
+            Param.Height += FishMasterData.GetFin(parts[i]._id).Height;
+            Param.Sight += FishMasterData.GetFin(parts[i]._id).Sight;
+            Param.Attack += FishMasterData.GetFin(parts[i]._id).Attack;
+        }
+
+        ParamInit();
+        InstantiateParts("Body:" + parts[0]._id,parts[0]._pos);
+        InstantiateParts("Eye:" + parts[1]._id, parts[0]._pos);
+        for (int i = 2; i < parts.Count; i++)
+        {
+            InstantiateParts("Fin:" + parts[i]._id, parts[0]._pos);
+        }
+
+	}
+    void InstantiateParts(string path,Vector3 pos){
+        //プレハブが整ったら
+        //        GameObject go = (GameObject)Instantiate(Resources.Load(path), _partsRoot);
+        //        go.transform.localPosition = pos;
+        //        _parts.Add(go);
+        
+    }
+	void Start()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
         _collider = GetComponent<Collider2D>();
-        ParamInit();
+        //DummyParam();
         Init();
+        //ParamInit();
     }
-    void ParamInit()
-    {
-        _param = new CharaParam()
+    void DummyParam(){
+        Param = new CharaParam()
         {
             Hp = 10,
+            Height = 1,
             Attack = 1,
             Weight = 1,
             Speed = 1,
             Agility = 1
         };
+    }
+    void ParamInit()
+    {
+        Param.Init();   
     }
     // Update is called once per frame
     void Update()
@@ -47,7 +94,7 @@ public abstract class FishBase : MonoBehaviour
         FishBase enemy = collision.gameObject.GetComponent<FishBase>();
         if (enemy!=null)
         {
-            Damage(enemy._param.Attack);
+            Damage(enemy.Param.Attack);
         }
     }
 	private void OnTriggerStay2D(Collider2D collision)
@@ -55,12 +102,12 @@ public abstract class FishBase : MonoBehaviour
         FishBase enemy = collision.gameObject.GetComponent<FishBase>();
         if (enemy != null)
         {
-            KnockBack(transform.position - collision.transform.position,enemy._param.Attack * 1.0f);
+            KnockBack(transform.position - collision.transform.position,enemy.Param.Attack * 1.0f);
         }
 	}
 	void Damage(int d)
     {
-        _param.Hp -= d;
+        Param.Hp -= d;
     }
 
     void KnockBack(Vector2 dir,float kb){
@@ -86,10 +133,21 @@ public class TickEvent{
     }
 }
 public class CharaParam{
+    //20段階
+    public int Weight { get; set; }
+    public int Height { get; set; }
+    public int Aggressive { get; set; }
+    public int Attack { get; set; }
+    public int Sight { get; set; }
+
     public int Hp { get; set; }
-    public int Attack{ get; set; }
-    public int Weight{ get; set; }
     public int Speed { get; set; }
     public int Agility { get; set; }
-    public int Aggressive { get; set; }
+
+    public void Init(){
+        Hp = (int)(Weight + Height*1.5f);
+        Speed = 20 - Weight;
+        Agility = 20 - Height;
+
+    }
 }
