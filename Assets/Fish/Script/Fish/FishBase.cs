@@ -6,11 +6,30 @@ using UnityEngine.Events;
 [RequireComponent(typeof(Collider2D))]
 public abstract class FishBase : MonoBehaviour
 {
-
+    public enum AggressiveState
+    {
+        None,
+        Attack,
+        Angry,
+        Escape
+    }
     [SerializeField] private Transform _partsRoot;
     protected Rigidbody2D _rigidbody;
     protected Collider2D _collider;
-    public CharaParam Param { get; set; }
+
+    public int Team { get; set; }//所属
+    private CharaParam _param;
+    public CharaParam Param
+    {
+        get
+        {
+            Debug.Log(_param);
+            return _param;
+        }
+        set
+        {
+            Debug.Log(value);
+            _param = value; } }
 
     List<GameObject> _parts;
     Vector2 _direction;//向き
@@ -23,36 +42,43 @@ public abstract class FishBase : MonoBehaviour
 	//protected abstract void OnDamage();
 
     public void InitData(List<PartsData> parts){
-        
-        Param = new CharaParam()
+        if (parts.Count > 2)
         {
+            Param = new CharaParam()
+            {
 
-            Height =  + FishMasterData.GetBody(parts[0]._id).Height,
-            Attack = FishMasterData.GetBody(parts[0]._id).Attack + FishMasterData.GetEye(parts[1]._id).Attack,
-            Weight = FishMasterData.GetBody(parts[0]._id).Weight,
-            Aggressive = FishMasterData.GetEye(parts[1]._id).Aggressive,
-            Hp = 0,
-            Speed = 0,
-            Agility = 0
-        };
+                Height = FishMasterData.GetBody(parts[0]._id).Height,
+                Attack = FishMasterData.GetBody(parts[0]._id).Attack + FishMasterData.GetEye(parts[1]._id).Attack,
+                Weight = FishMasterData.GetBody(parts[0]._id).Weight,
+                Aggressive = FishMasterData.GetEye(parts[1]._id).Aggressive,
+                Hp = 0,
+                Speed = 0,
+                Agility = 0
+            };
 
 
-        for (int i = 2; i < parts.Count;i ++){
-            Param.Weight += FishMasterData.GetFin(parts[i]._id).Weight;
-            Param.Height += FishMasterData.GetFin(parts[i]._id).Height;
-            Param.Sight += FishMasterData.GetFin(parts[i]._id).Sight;
-            Param.Attack += FishMasterData.GetFin(parts[i]._id).Attack;
+            for (int i = 2; i < parts.Count; i++)
+            {
+                Param.Weight += FishMasterData.GetFin(parts[i]._id).Weight;
+                Param.Height += FishMasterData.GetFin(parts[i]._id).Height;
+                Param.Sight += FishMasterData.GetFin(parts[i]._id).Sight;
+                Param.Attack += FishMasterData.GetFin(parts[i]._id).Attack;
+            }
+
+            ParamInit();
+            InstantiateParts("Body:" + parts[0]._id, parts[0]._pos);
+            InstantiateParts("Eye:" + parts[1]._id, parts[0]._pos);
+            for (int i = 2; i < parts.Count; i++)
+            {
+                InstantiateParts("Fin:" + parts[i]._id, parts[0]._pos);
+            }
         }
-
-        ParamInit();
-        InstantiateParts("Body:" + parts[0]._id,parts[0]._pos);
-        InstantiateParts("Eye:" + parts[1]._id, parts[0]._pos);
-        for (int i = 2; i < parts.Count; i++)
+        else
         {
-            InstantiateParts("Fin:" + parts[i]._id, parts[0]._pos);
+            DefaultParam();
+            ParamInit();
         }
-
-	}
+    }
     void InstantiateParts(string path,Vector3 pos){
         //プレハブが整ったら
         //        GameObject go = (GameObject)Instantiate(Resources.Load(path), _partsRoot);
@@ -65,18 +91,25 @@ public abstract class FishBase : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody2D>();
         _collider = GetComponent<Collider2D>();
         //DummyParam();
+       
         Init();
-        //ParamInit();
+        
     }
-    void DummyParam(){
+
+    public void SetTarget(GameObject go)
+    {
+        _target = go;
+    }
+    void DefaultParam(){
         Param = new CharaParam()
         {
-            Hp = 10,
+            Hp = 1,
             Height = 1,
             Attack = 1,
             Weight = 1,
             Speed = 1,
-            Agility = 1
+            Agility = 1,
+            Sight = 1
         };
     }
     void ParamInit()
@@ -94,6 +127,7 @@ public abstract class FishBase : MonoBehaviour
         FishBase enemy = collision.gameObject.GetComponent<FishBase>();
         if (enemy!=null)
         {
+            if(enemy.Param!=null)
             Damage(enemy.Param.Attack);
         }
     }
@@ -102,7 +136,8 @@ public abstract class FishBase : MonoBehaviour
         FishBase enemy = collision.gameObject.GetComponent<FishBase>();
         if (enemy != null)
         {
-            KnockBack(transform.position - collision.transform.position,enemy.Param.Attack * 1.0f);
+            if (enemy.Param != null)
+                KnockBack(transform.position - collision.transform.position,enemy.Param.Attack * 1.0f);
         }
 	}
 	void Damage(int d)

@@ -76,17 +76,41 @@ public static class FishMasterData {
 public class FishData
 {
     public int Id { get; set; }
-    public List<PartsData> _parts;// 0:head 1:eye 2~:fin 
-    public void AddParts(int id,Vector3 pos){
+    public List<PartsData> _parts = new List<PartsData>();// 0:head 1:eye 2~:fin 
+    public void AddParts(int id, Vector3 pos)
+    {
         _parts.Add(new PartsData() { _id = id, _pos = pos });
     }
-    public void Save(){
-        string dataPath = "Fish:" + Id;
+
+}
+public class LocalDataManager
+{
+    public FishData LoadFishData(int id)
+    {
+        string dataPath = "Fish:" + id;
+//        string idPath = "/Parts:";  
+        FishData fish = new FishData();
+        List<PartsData> parts = PlayerPrefsUtility.LoadList<PartsData>(dataPath);
+        fish._parts = parts;
+//        FishData ret = PlayerPrefs.GetString();
+        return fish;
+    }
+    public void SaveFishData(int id)
+    {
+        string dataPath = "Fish:" + id;
 
     }
-    public void Load(){
-        string dataPath = "Fish:" + Id;
+
+    public void LoadDeckData(int id)
+    {
+        string dataPath = "Deck:" + id;
     }
+}
+
+public class DeckData
+{
+    public int Id { get; set; }
+    public List<int> _fishId = new List<int>();
 }
 [System.Serializable]
 public class PartsData{
