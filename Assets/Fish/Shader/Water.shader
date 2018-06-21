@@ -1,6 +1,8 @@
 ﻿Shader "Custom/PerlinNoise" {
     Properties {
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
+		_LightColor("LightColor",COLOR) = (1,1,1,1)
+		_DeepColor("DeepColor",COLOR) = (1,1,1,1)
     }
     SubShader {
 //        Tags { "RenderType"="Opaque" }
@@ -78,31 +80,37 @@
 		float3 h = abs(x) - 0.5;
 		float3 ox = floor(x + 0.5);
 		float3 a0 = x - ox;
-		m *= 1.79284291400159 - 15.85373472095314 * (a0*a0 + h * h);
+		m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h * h);
 		float3 g;
 		g.x = a0.x  * x0.x + h.x  * x0.y;
 		g.yz = a0.yz * x12.xz + h.yz * x12.yw;
 		return 130.0 * dot(m, g);
 	}
-
+	float4 _LightColor;
+	float4 _DeepColor;
 		fixed4 frag(v2f i) : SV_Target
 		{
-			i.uv.y = 1 - i.uv.y;
+			//i.uv.y = 1 - i.uv.y;
 			fixed4 col = tex2D(_MainTex, i.uv);
 		float2 pos = i.uv;
+		pos.x = (pos.x -0.5)* (3 + pos.y * 20);
+		pos.y = pos.y * (10+ pos.y*50) + 10;
 		float2 vel = _Time;
 
 		//pos.x *= 4 * i.uv.y* i.uv.y;
 		//pos.y *= 4 * i.uv.y;
-		float o = snoise(pos + vel * i.uv.y);
+		float o = snoise(pos + vel);
 		float2 value = float2(0, 0);
-		value.x = cos(_Time*0.1);
+		//value.x = cos(_Time*0.1);
 		value.y = sin(_Time*0.02);
 		float a = snoise(pos*value*3.1415);
 		vel = float2(cos(a*0.1), sin(a));
-		o += noise(pos + vel);
-		o *= o*o;
-			col.xyz =  o ;
+		o += snoise(pos + vel);
+		//o *= o*o;
+		float m = (1 - pos.y/25) < 0 ? 0 : (1 - pos.y/25);
+		float f = noise(o  * m);
+		f = f < 0 ? 0 : f;
+			col.xyz =  _DeepColor.xyz +  _LightColor.xyz *(f+m) ;
 			return col;
 		}
 		ENDCG
