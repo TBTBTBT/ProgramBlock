@@ -109,8 +109,13 @@ public class LocalDataManager
 
 public class DeckData
 {
+    public class IdPos
+    {
+        public int Id { get; set; }
+        public Vector2 Pos { get; set; }
+    } 
     public int Id { get; set; }
-    public List<int> _fishId = new List<int>();
+    public List<IdPos> _fish = new List<IdPos>();
 }
 [System.Serializable]
 public class PartsData{

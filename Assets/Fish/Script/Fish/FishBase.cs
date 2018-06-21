@@ -6,6 +6,7 @@ using UnityEngine.Events;
 [RequireComponent(typeof(Collider2D))]
 public abstract class FishBase : MonoBehaviour
 {
+    protected const int ParamMax = 20;
     public enum AggressiveState
     {
         None,
@@ -18,28 +19,45 @@ public abstract class FishBase : MonoBehaviour
     protected Collider2D _collider;
 
     public int Team { get; set; }//所属
-    private CharaParam _param;
-    public CharaParam Param
+    public CharaParam Param { get; set; }
+    private float _direction = 0;
+    public float ActualDirection
     {
-        get
-        {
-            Debug.Log(_param);
-            return _param;
-        }
-        set
-        {
-            Debug.Log(value);
-            _param = value; } }
+        get { return _direction; }
+    }
+    public float AimDirection { get; set; }//向き 0 = 右
+    public GameObject Target { get; set; }//敵
 
     List<GameObject> _parts;
-    Vector2 _direction;//向き
-    GameObject _target;//敵
+    
+    private bool isInit = false;
+
+
+    void Awake()
+    {
+        _rigidbody = GetComponent<Rigidbody2D>();
+        _collider = GetComponent<Collider2D>();
+        DefaultParam();
+    }
+
+    void Update()
+    {
+        if (isInit)
+        {
+            Rotate();
+            Move();
+            CheckField();
+        }
+    }
 
 
 
     protected abstract void Init();
+
     protected abstract void Move();
-	//protected abstract void OnDamage();
+
+    //protected abstract void OnDamage();
+
 
     public void InitData(List<PartsData> parts){
         if (parts.Count > 2)
@@ -77,30 +95,13 @@ public abstract class FishBase : MonoBehaviour
         {
             DefaultParam();
             ParamInit();
+            
         }
-    }
-    void InstantiateParts(string path,Vector3 pos){
-        //プレハブが整ったら
-        //        GameObject go = (GameObject)Instantiate(Resources.Load(path), _partsRoot);
-        //        go.transform.localPosition = pos;
-        //        _parts.Add(go);
-        
-    }
-	void Start()
-    {
-        _rigidbody = GetComponent<Rigidbody2D>();
-        _collider = GetComponent<Collider2D>();
-        //DummyParam();
-       
         Init();
-        
+        isInit = true;
     }
-
-    public void SetTarget(GameObject go)
+    void DefaultParam()
     {
-        _target = go;
-    }
-    void DefaultParam(){
         Param = new CharaParam()
         {
             Hp = 1,
@@ -114,59 +115,83 @@ public abstract class FishBase : MonoBehaviour
     }
     void ParamInit()
     {
-        Param.Init();   
+        Param.Init();
+
+    }
+    
+    void InstantiateParts(string path,Vector3 pos){
+        //プレハブが整ったら
+        //        GameObject go = (GameObject)Instantiate(Resources.Load(path), _partsRoot);
+        //        go.transform.localPosition = pos;
+        //        _parts.Add(go);
+        
+    }
+
+    float OverCheck(float input, float max)
+    {
+        if (Mathf.Abs(input) > Mathf.Abs(max))
+        {
+            return  max * Mathf.Sign(input);
+
+        }
+
+        return input;
+    }
+    void CheckField()
+    {
+        Vector2 pos = transform.position;
+        Vector2 field = GameManager.Instance.FieldSize;
+        pos.x = OverCheck(pos.x, field.y);
+        pos.y = OverCheck(pos.y, field.y);
+        transform.position = pos;
+    }
+    void Rotate()
+    {
+        _direction = Mathf.LerpAngle(_direction, AimDirection, 0.2f);
+        transform.localRotation =Quaternion.AngleAxis(_direction, new Vector3(0, 0, 1));
+    }
+
+    void CheckHitEnemy(Collider2D collision,UnityAction<FishBase> cb)
+    {
+        FishBase enemy = collision.gameObject.GetComponent<FishBase>();
+        if (enemy != null)
+        {
+            cb(enemy);
+        }
+
+        Target = enemy.gameObject;
+    }
+    void Damage(FishBase enemy)
+    {
+        Param.Hp -= enemy.Param.Attack;
     }
     // Update is called once per frame
-    void Update()
-    {
-        Move();
 
+    void KnockBack(FishBase enemy)
+    {
+
+        _rigidbody.velocity += (Vector2)(transform.position - (enemy.transform.position)).normalized * (enemy.Param.Attack * 2.0f);
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        FishBase enemy = collision.gameObject.GetComponent<FishBase>();
-        if (enemy!=null)
+        if (isInit)
         {
-            if(enemy.Param!=null)
-            Damage(enemy.Param.Attack);
+            CheckHitEnemy(collision,Damage);
+
+
         }
     }
 	private void OnTriggerStay2D(Collider2D collision)
 	{
-        FishBase enemy = collision.gameObject.GetComponent<FishBase>();
-        if (enemy != null)
-        {
-            if (enemy.Param != null)
-                KnockBack(transform.position - collision.transform.position,enemy.Param.Attack * 1.0f);
-        }
+	    if (isInit)
+	    {
+	       CheckHitEnemy(collision, KnockBack);
+	    }
 	}
-	void Damage(int d)
-    {
-        Param.Hp -= d;
-    }
 
-    void KnockBack(Vector2 dir,float kb){
-        _rigidbody.velocity += kb * dir;
-    }
+
 }
-public class TickEvent{
-    int _time;
-    int _max;
-    UnityEvent OnTime = new UnityEvent();
-    public TickEvent(int max){
-        _max = max;
-    }
-    public void AddListener(UnityAction cb){
-        OnTime.AddListener(cb);
-    }
-    public void Update(){
-        _time++;
-        if(_time > _max){
-            _time = 0;
-            OnTime.Invoke();
-        }
-    }
-}
+
 public class CharaParam{
     //20段階
     public int Weight { get; set; }
