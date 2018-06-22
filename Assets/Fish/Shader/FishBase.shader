@@ -2,10 +2,13 @@
 {
 	Properties
 	{
-		_MainTex ("Texture", 2D) = "white" {}
+		_MainTex ("Body", 2D) = "white" {}
+
 		_time("Time",Range(0,1)) = 0
 		//_time("Center",Vector) = (0,0,0,0)
 		_amplitude("Amplitude",Range(0.1,2)) = 0
+		
+		_RotateCenter("Center",Vector) = (0,0,0,0)
 	}
 	SubShader
 	{
@@ -34,13 +37,19 @@
 			};
 			float _time;
 			float _amplitude;
+			float2 _RotateCenter;
 			#define PI 3.1415926535897932384626433832795
-			float3 rotate(float3 input) {
+			float3 rotate(float3 input,float2 center) {
+				input.z += center.y;
+				
 				float t = (input.x + _time*2)* _amplitude;
 				float z = t > 0.5 && t < 1.5 ? sin(t * PI) : t <= 0.5 ? 1 : -1;
+				input.x += center.x;
 				input.z *= z;
+				
 				return input;
 			}
+			
 			float2 CalculatePosition(float2 x1, float2 x2, float2 x3, float t)
 			{
 				if (t >= 0 && t <= 1)
@@ -67,7 +76,7 @@
 			v2f vert (appdata v)
 			{
 				v2f o;
-				o.vertex = UnityObjectToClipPos(rotate(v.vertex));
+				o.vertex = UnityObjectToClipPos(rotate(v.vertex,_RotateCenter.xy));
 				o.uv = v.uv;
 				return o;
 			}

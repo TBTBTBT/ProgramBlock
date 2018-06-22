@@ -5,7 +5,6 @@ using UnityEngine;
 public class Fish00 : FishBase
 {
     private TickEvent _onMove;
-    private TickEvent _onDamage;
     private float _friction = 0.9f;
     private float _speed = 0;
     protected override void Init()
@@ -29,6 +28,10 @@ public class Fish00 : FishBase
         }
     }
 
+    protected override void OnHitEnemy(FishBase enemy)
+    {
+
+    }
     void Friction(float f)
     {
         _speed *= f;
@@ -43,6 +46,7 @@ public class Fish00 : FishBase
         }
 
         AddSpeed();
+        UpdateEmotion();
 
     }
     void AddSpeed()
@@ -51,6 +55,10 @@ public class Fish00 : FishBase
         _speed = 1;
     }
 
+    void UpdateEmotion()
+    {
+        Emotion.UpdateEmotion();
+    }
     void AngleLock()
     {
         AimDirection = MathUtil.GetAim(transform.position, Target.transform.position);

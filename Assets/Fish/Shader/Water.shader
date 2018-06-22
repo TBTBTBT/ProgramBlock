@@ -90,23 +90,17 @@
 	float4 _DeepColor;
 		fixed4 frag(v2f i) : SV_Target
 		{
-			//i.uv.y = 1 - i.uv.y;
 			fixed4 col = tex2D(_MainTex, i.uv);
 		float2 pos = i.uv;
 		pos.x = (pos.x -0.5)* (3 + pos.y * 20);
 		pos.y = pos.y * (10+ pos.y*50) + 10;
 		float2 vel = _Time;
-
-		//pos.x *= 4 * i.uv.y* i.uv.y;
-		//pos.y *= 4 * i.uv.y;
 		float o = snoise(pos + vel);
 		float2 value = float2(0, 0);
-		//value.x = cos(_Time*0.1);
 		value.y = sin(_Time*0.02);
 		float a = snoise(pos*value*3.1415);
 		vel = float2(cos(a*0.1), sin(a));
 		o += snoise(pos + vel);
-		//o *= o*o;
 		float m = (1 - pos.y/25) < 0 ? 0 : (1 - pos.y/25);
 		float f = noise(o  * m);
 		f = f < 0 ? 0 : f;

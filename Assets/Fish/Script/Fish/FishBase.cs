@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.XR.WSA.Input;
+
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
 public abstract class FishBase : MonoBehaviour
@@ -14,7 +17,16 @@ public abstract class FishBase : MonoBehaviour
         Angry,
         Escape
     }
+
+    public enum BattleState
+    {
+        None,
+        Attack,
+        Damage,
+        Run
+    }
     [SerializeField] private Transform _partsRoot;
+    [SerializeField] private List<Renderer> _partsRenderer;
     protected Rigidbody2D _rigidbody;
     protected Collider2D _collider;
 
@@ -28,18 +40,22 @@ public abstract class FishBase : MonoBehaviour
     public float AimDirection { get; set; }//向き 0 = 右
     public GameObject Target { get; set; }//敵
 
-    List<GameObject> _parts;
+   // List<GameObject> _parts;
     
     private bool isInit = false;
-
-
+    protected AggressiveState _aggressiveState { get; set; }
+    protected BattleState _battleState { get; set; }
+    protected EmotionModule Emotion { get; set; }//+ : 怒り - : 逃げ
     void Awake()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
         _collider = GetComponent<Collider2D>();
         DefaultParam();
+        ChangeAggressiveState();
+        Emotion = new EmotionModule(Param.Aggressive,ParamMax);
     }
 
+   
     void Update()
     {
         if (isInit)
@@ -50,15 +66,22 @@ public abstract class FishBase : MonoBehaviour
         }
     }
 
-
+#region Abstract
 
     protected abstract void Init();
 
     protected abstract void Move();
 
-    //protected abstract void OnDamage();
+    protected abstract void OnHitEnemy(FishBase enemy);
+
+    //    protected abstract void WhileHitEnemy();
+    #endregion
 
 
+    /// <summary>
+    /// パーツデータを魚のパラメータに変換
+    /// </summary>
+    /// <param name="parts"></param>
     public void InitData(List<PartsData> parts){
         if (parts.Count > 2)
         {
@@ -84,22 +107,25 @@ public abstract class FishBase : MonoBehaviour
             }
 
             ParamInit();
-            InstantiateParts("Body:" + parts[0]._id, parts[0]._pos);
-            InstantiateParts("Eye:" + parts[1]._id, parts[0]._pos);
+            InstantiateParts(0,"Material/Body/Body_" + parts[0]._id, parts[0]._pos);
+            InstantiateParts(1,"Material/Eye/Eye_" + parts[1]._id, parts[0]._pos);
             for (int i = 2; i < parts.Count; i++)
             {
-                InstantiateParts("Fin:" + parts[i]._id, parts[0]._pos);
+                InstantiateParts(i,"Fin:" + parts[i]._id, parts[0]._pos);
             }
         }
         else
         {
             DefaultParam();
             ParamInit();
-            
+            DefaultMaterial();
         }
         Init();
         isInit = true;
     }
+    /// <summary>
+    /// 初期値
+    /// </summary>
     void DefaultParam()
     {
         Param = new CharaParam()
@@ -113,20 +139,51 @@ public abstract class FishBase : MonoBehaviour
             Sight = 1
         };
     }
+
+    void DefaultMaterial()
+    {
+        InstantiateParts(0,"Material/Body/Body_" + 0, new Vector2(0,0));
+        InstantiateParts(1,"Material/Eye/Eye_" + 0 , new Vector2(1,0.5f));
+    }
     void ParamInit()
     {
         Param.Init();
 
     }
     
-    void InstantiateParts(string path,Vector3 pos){
+    void InstantiateParts(int i,string path,Vector2 pos)
+    {
+
+            _partsRenderer[i].material = Resources.Load<Material>(path);
+            _partsRenderer[i].material.SetVector("_RotateCenter",new Vector4(pos.x,pos.y,0,0));
+            _partsRenderer[i].gameObject.SetActive(true);
+
         //プレハブが整ったら
         //        GameObject go = (GameObject)Instantiate(Resources.Load(path), _partsRoot);
         //        go.transform.localPosition = pos;
         //        _parts.Add(go);
-        
+    }
+    void Rotate()
+    {
+        _direction = Mathf.LerpAngle(_direction, AimDirection, 0.2f);
+        transform.localRotation = Quaternion.AngleAxis(_direction, new Vector3(0, 0, 1));
+    }
+    void ChangeAggressiveState()
+    {
+        _aggressiveState = AggressiveState.None;
+        if (Target)
+        {
+
+        }
     }
 
+
+    /// <summary>
+    /// はみ出しチェック
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="max"></param>
+    /// <returns></returns>
     float OverCheck(float input, float max)
     {
         if (Mathf.Abs(input) > Mathf.Abs(max))
@@ -145,13 +202,13 @@ public abstract class FishBase : MonoBehaviour
         pos.y = OverCheck(pos.y, field.y);
         transform.position = pos;
     }
-    void Rotate()
-    {
-        _direction = Mathf.LerpAngle(_direction, AimDirection, 0.2f);
-        transform.localRotation =Quaternion.AngleAxis(_direction, new Vector3(0, 0, 1));
-    }
 
-    void CheckHitEnemy(Collider2D collision,UnityAction<FishBase> cb)
+
+
+    /// <summary>
+    /// 敵との接触
+    /// </summary>
+    void CheckHitEnemy(Collider2D collision,UnityAction<FishBase> cb,bool isStay = false)
     {
         FishBase enemy = collision.gameObject.GetComponent<FishBase>();
         if (enemy != null)
@@ -159,14 +216,18 @@ public abstract class FishBase : MonoBehaviour
             cb(enemy);
         }
 
+        if (!isStay)
+        {
+            OnHitEnemy(enemy);
+        }
         Target = enemy.gameObject;
     }
+
     void Damage(FishBase enemy)
     {
         Param.Hp -= enemy.Param.Attack;
+        Emotion.AddAngry(Param.Aggressive - enemy.Param.Attack);
     }
-    // Update is called once per frame
-
     void KnockBack(FishBase enemy)
     {
 
@@ -185,13 +246,12 @@ public abstract class FishBase : MonoBehaviour
 	{
 	    if (isInit)
 	    {
-	       CheckHitEnemy(collision, KnockBack);
+	       CheckHitEnemy(collision, KnockBack,true);
 	    }
 	}
 
 
 }
-
 public class CharaParam{
     //20段階
     public int Weight { get; set; }
@@ -209,5 +269,30 @@ public class CharaParam{
         Speed = 20 - Weight;
         Agility = 20 - Height;
 
+    }
+}
+//感情システム
+public class EmotionModule
+{
+    private const int EmotionMax = 100;
+    public int Angry { get; set; }
+    public int Emotion { get; set; }
+
+    public EmotionModule(int aggressive,int maxaggressive)
+    {
+        Angry = aggressive - maxaggressive / 2;
+        Emotion = 0;
+    }
+    public void UpdateEmotion()
+    {
+        Emotion += Angry;
+        if (Mathf.Abs(Emotion) > EmotionMax)
+        {
+            Emotion = (int)Mathf.Sign(Emotion) * EmotionMax;
+        }
+    }
+    public void AddAngry(int num)
+    {
+        Angry++;
     }
 }
