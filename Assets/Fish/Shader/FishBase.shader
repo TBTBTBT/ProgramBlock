@@ -7,7 +7,7 @@
 		_time("Time",Range(0,1)) = 0
 		//_time("Center",Vector) = (0,0,0,0)
 		_amplitude("Amplitude",Range(0.1,2)) = 0
-		
+
 		_RotateCenter("Center",Vector) = (0,0,0,0)
 	}
 	SubShader

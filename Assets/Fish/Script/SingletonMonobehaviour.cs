@@ -27,7 +27,7 @@ public abstract class SingletonMonoBehaviour<T> : MonoBehaviour where T : Single
 
     //public static bool Exists => _sInstance != null;
 
-    protected void Awake()
+    protected virtual void Awake()
     {
         if (_sInstance != null)
         {

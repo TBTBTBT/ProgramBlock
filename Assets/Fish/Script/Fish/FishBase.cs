@@ -82,36 +82,37 @@ public abstract class FishBase : MonoBehaviour
     /// パーツデータを魚のパラメータに変換
     /// </summary>
     /// <param name="parts"></param>
-    public void InitData(List<PartsData> parts){
-        if (parts.Count > 2)
+    public void InitData(FishData data){
+        if (data.Body._id >= 0 && data.Eye._id >= 0)
         {
             Param = new CharaParam()
             {
 
-                Height = FishMasterData.GetBody(parts[0]._id).Height,
-                Attack = FishMasterData.GetBody(parts[0]._id).Attack + FishMasterData.GetEye(parts[1]._id).Attack,
-                Weight = FishMasterData.GetBody(parts[0]._id).Weight,
-                Aggressive = FishMasterData.GetEye(parts[1]._id).Aggressive,
+                Height = FishMasterData.GetBody(data.Body._id).Height,
+                Attack = FishMasterData.GetBody(data.Body._id).Attack + FishMasterData.GetEye(data.Eye._id).Attack,
+                Weight = FishMasterData.GetBody(data.Body._id).Weight,
+                Aggressive = FishMasterData.GetEye(data.Eye._id).Aggressive,
                 Hp = 0,
                 Speed = 0,
                 Agility = 0
             };
 
 
-            for (int i = 2; i < parts.Count; i++)
+            for (int i = 0; i < data.Fin.Count; i++)
             {
-                Param.Weight += FishMasterData.GetFin(parts[i]._id).Weight;
-                Param.Height += FishMasterData.GetFin(parts[i]._id).Height;
-                Param.Sight += FishMasterData.GetFin(parts[i]._id).Sight;
-                Param.Attack += FishMasterData.GetFin(parts[i]._id).Attack;
+                Param.Weight += FishMasterData.GetFin(data.Fin[i]._id).Weight;
+                Param.Height += FishMasterData.GetFin(data.Fin[i]._id).Height;
+                Param.Sight += FishMasterData.GetFin(data.Fin[i]._id).Sight;
+                Param.Attack += FishMasterData.GetFin(data.Fin[i]._id).Attack;
             }
-
             ParamInit();
-            InstantiateParts(0,"Material/Body/Body_" + parts[0]._id, parts[0]._pos);
-            InstantiateParts(1,"Material/Eye/Eye_" + parts[1]._id, parts[0]._pos);
-            for (int i = 2; i < parts.Count; i++)
+
+
+            InstantiateParts(0,FishMasterData.MaterialPath[PartsType.Body] + data.Body._id, data.Body._pos);
+            InstantiateParts(1,FishMasterData.MaterialPath[PartsType.Eye] + data.Eye._id, data.Body._pos);
+            for (int i = 0; i < data.Fin.Count; i++)
             {
-                InstantiateParts(i,"Fin:" + parts[i]._id, parts[0]._pos);
+                InstantiateParts(i,FishMasterData.MaterialPath[PartsType.Fin] + data.Fin[i]._id, data.Body._pos);
             }
         }
         else
@@ -142,8 +143,8 @@ public abstract class FishBase : MonoBehaviour
 
     void DefaultMaterial()
     {
-        InstantiateParts(0,"Material/Body/Body_" + 0, new Vector2(0,0));
-        InstantiateParts(1,"Material/Eye/Eye_" + 0 , new Vector2(1,0.5f));
+        InstantiateParts(0,FishMasterData.MaterialPath[PartsType.Body]  + 0, new Vector2(0,0));
+        InstantiateParts(1,FishMasterData.MaterialPath[PartsType.Eye]  + 0 , new Vector2(1,0.5f));
     }
     void ParamInit()
     {

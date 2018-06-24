@@ -6,7 +6,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager> {
     [SerializeField] GameObject _fishBase;
 
     private List<DeckData> _decks = new List<DeckData>();
-    private Vector2 _fieldSize = new Vector2(2, 2);
+    private Vector2 _fieldSize = new Vector2(14, 8);
     public Vector2 FieldSize
     {
         get { return _fieldSize; }
@@ -38,7 +38,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager> {
         DeckData deck = new DeckData();//Masterからロード
         List<DeckData.IdPos> ids = new List<DeckData.IdPos>()
         {
-            new DeckData.IdPos(){Id = 0,Pos = new Vector2(Random.Range(-1f,1f),Random.Range(-1f,1f))}
+            new DeckData.IdPos(){Id = 0,Pos = new Vector2(Random.Range(-14f,14f),Random.Range(-8f,8f))}
         };
         deck._fish = ids;
         _decks.Add(deck);
@@ -46,7 +46,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager> {
     void InstantiateFish(int id,Vector2 pos,int mem){
         FishData data = new FishData();//Masterからロード
         GameObject f = Instantiate(_fishBase,pos,Quaternion.identity);
-        f.GetComponent<FishBase>().InitData(data._parts);
+        f.GetComponent<FishBase>().InitData(data);
         f.GetComponent<FishBase>().Team = mem;
     }
 
