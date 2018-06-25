@@ -117,8 +117,28 @@ public class FishData
         }
 
     }
-    public void ChangeParts(){
-        
+    public void ChangeParts(int index,int id,Vector2 pos){
+        if (index == 0)
+        {
+            Body._id = id;
+            Body._pos = pos;
+        }
+
+        if (index == 1)
+        {
+            Eye._id = id;
+            Eye._pos = pos;
+        }
+
+        if (index >= 2)
+        {
+            int i = index - 2;
+            if (i < Fin.Count)
+            {
+                Fin[i]._id = id;
+                Fin[i]._pos = pos;
+            }
+        }
     }
 
 

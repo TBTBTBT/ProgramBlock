@@ -38,11 +38,12 @@ public class FishEditManager : SingletonMonoBehaviour<FishEditManager>
             _partsFrame[i].UpdateData((byte)i,_nowEdit);
         }
     }
-    public void ChangeNowEdit(PartsType edit){
+    public void ChangeNowEdit(int edit){
         
-        UpdateFrameData(edit);
+        UpdateFrameData((PartsType)edit);
 
     }
+    
     PartsFrame InstantiateFrame(){
 
         PartsFrame result = Instantiate(_partsFramePrefab, _partsFrameRoot).GetComponent<PartsFrame>();
@@ -53,15 +54,30 @@ public class FishEditManager : SingletonMonoBehaviour<FishEditManager>
             _partsFrame.Add(InstantiateFrame());
         }
     }
-    public void PlaceParts(Vector2 pos){
+    public void PlaceParts(Vector2 pos)
+    {
+        Vector2 wpos = MainCameraSingleton.Instance.ScreenToWorld(pos);
         switch(_nowEdit){
             case PartsType.Body:
-                _data.AddParts(_nowEdit, 0, pos);
+                Debug.Log("Place Body");
+                _data.AddParts(_nowEdit, 0, new Vector2(0, 0));
+                EditFishBase.Instance.AddParts(_nowEdit,0,new Vector2(0,0));
         break;
             case PartsType.Eye:
-        break;
+                Debug.Log("Place Eye");
+                _data.AddParts(_nowEdit, 0, wpos);
+                EditFishBase.Instance.AddParts(_nowEdit, 0, wpos);
+                break;
             case PartsType.Fin:
                 break;
         }
+    }
+
+    public void ReplaceParts(int index, Vector2 pos)
+    {
+        Vector2 relPos = EditFishBase.Instance.RelativePos(MainCameraSingleton.Instance.ScreenToWorld(pos));
+        Debug.Log("Replace p" + index);
+        _data.ChangeParts(index, 0, relPos);
+        EditFishBase.Instance.ChangePartsPos(index, relPos);
     }
 }
