@@ -10,7 +10,7 @@ public class EditFishBase : SingletonMonoBehaviour<EditFishBase> {
 
     [SerializeField] private List<PartsHandle> _partsHandles;
 
-    private bool DebugRender = false;
+    private bool DebugRender = true;
 //    private readonly _partsTextureSize;
     protected override void Awake()
 	{

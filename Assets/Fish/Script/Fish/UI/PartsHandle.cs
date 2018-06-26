@@ -20,6 +20,7 @@ public class PartsHandle : MonoBehaviour
     {
         Vector2 pos = ((PointerEventData)e).position;
         transform.position = pos;
+       EditFishBase.Instance.ChangePartsPos(_index, EditFishBase.Instance.RelativePos(MainCameraSingleton.Instance.ScreenToWorld(pos)));
     }
     public void OnPointerUp(BaseEventData e)
     {

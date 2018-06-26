@@ -35,7 +35,8 @@ public class FishEditManager : SingletonMonoBehaviour<FishEditManager>
         _nowEdit = edit;
         AddFrame(_partsMax[_nowEdit.ToString()]);
         for (int i = 0; i < _partsFrame.Count;i++){
-            _partsFrame[i].UpdateData((byte)i,_nowEdit);
+            Debug.Log(i);
+            _partsFrame[i].UpdateData(i,_nowEdit);
         }
     }
     public void ChangeNowEdit(int edit){
@@ -44,29 +45,32 @@ public class FishEditManager : SingletonMonoBehaviour<FishEditManager>
 
     }
     
-    PartsFrame InstantiateFrame(){
+    PartsFrame InstantiateFrame(int id){
 
         PartsFrame result = Instantiate(_partsFramePrefab, _partsFrameRoot).GetComponent<PartsFrame>();
         return result;
     }
-    void AddFrame(int max){
+    void AddFrame(int max)
+    {
+        int id = 0;
         while(max > _partsFrame.Count){
-            _partsFrame.Add(InstantiateFrame());
+            _partsFrame.Add(InstantiateFrame(id));
+
         }
     }
-    public void PlaceParts(Vector2 pos)
+    public void PlaceParts(int id,Vector2 pos)
     {
         
         switch(_nowEdit){
             case PartsType.Body:
-                Debug.Log("Place Body");
-                _data.AddParts(_nowEdit, 0, new Vector2(0, 0));
-                EditFishBase.Instance.AddParts(_nowEdit,0,new Vector2(0,0));
+                Debug.Log("Place Body" + id);
+                _data.AddParts(_nowEdit, id, new Vector2(0, 0));
+                EditFishBase.Instance.AddParts(_nowEdit,id,new Vector2(0,0));
         break;
             case PartsType.Eye:
                 Debug.Log("Place Eye");
-                _data.AddParts(_nowEdit, 0, pos);
-                EditFishBase.Instance.AddParts(_nowEdit, 0, pos);
+                _data.AddParts(_nowEdit, id, pos);
+                EditFishBase.Instance.AddParts(_nowEdit, id, pos);
                 break;
             case PartsType.Fin:
                 break;
@@ -77,7 +81,7 @@ public class FishEditManager : SingletonMonoBehaviour<FishEditManager>
     {
         Vector2 relPos = EditFishBase.Instance.RelativePos(MainCameraSingleton.Instance.ScreenToWorld(pos));
         Debug.Log("Replace p" + index);
-        _data.ChangeParts(index, 0, relPos);
+        _data.ChangePartsPos(index, relPos);
         EditFishBase.Instance.ChangePartsPos(index, relPos);
     }
 }

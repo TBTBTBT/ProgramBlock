@@ -6,13 +6,11 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 public class PartsFrame : MonoBehaviour {
-    public byte Id { get; set; }
+    public int Id { get; set; }
     [SerializeField] RawImage _renderer;
     [SerializeField] EventTrigger _eventTrigger;
 	// Use this for initialization
-	void Start () {
-        Init();
-	}
+
     public void AddListener(UnityAction<BaseEventData> cb){
         EventTrigger.Entry entry = new EventTrigger.Entry()
         {
@@ -25,10 +23,6 @@ public class PartsFrame : MonoBehaviour {
 	void Update () {
 		
 	}
-	void Init()
-	{
-        Id = 0;
-	}
     public void OnPointerDown(BaseEventData e){
         
     }
@@ -39,13 +33,14 @@ public class PartsFrame : MonoBehaviour {
 	}
     public void OnPointerUp(BaseEventData e)
     {
-        FishEditManager.Instance.PlaceParts(((PointerEventData)e).position);
+        FishEditManager.Instance.PlaceParts(Id,((PointerEventData)e).position);
         _renderer.transform.localPosition = Vector2.zero;
     }
-	public void UpdateData(byte id,PartsType type){
-        Id = Id;
+	public void UpdateData(int id,PartsType type){
+        Id = id;
+        //Debug.Log(Id);
         string path = FishMasterData.MaterialPath[type] + id;
-        Debug.Log(path);
+        //Debug.Log(path);
         _renderer.material = Resources.Load<Material>(path);
     }
 }
