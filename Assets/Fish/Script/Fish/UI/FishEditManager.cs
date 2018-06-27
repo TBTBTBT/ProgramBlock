@@ -60,20 +60,19 @@ public class FishEditManager : SingletonMonoBehaviour<FishEditManager>
     }
     public void PlaceParts(int id,Vector2 pos)
     {
-        
+        Vector2 relPos = EditFishBase.Instance.RelativePos(MainCameraSingleton.Instance.ScreenToWorld(pos));
+        Debug.Log("Place "+_nowEdit.ToString() + id);
         switch(_nowEdit){
             case PartsType.Body:
-                Debug.Log("Place Body" + id);
+                
                 _data.AddParts(_nowEdit, id, new Vector2(0, 0));
                 EditFishBase.Instance.AddParts(_nowEdit,id,new Vector2(0,0));
         break;
             case PartsType.Eye:
-                Debug.Log("Place Eye");
-                _data.AddParts(_nowEdit, id, pos);
-                EditFishBase.Instance.AddParts(_nowEdit, id, pos);
-                break;
             case PartsType.Fin:
-                break;
+                _data.AddParts(_nowEdit, id, relPos);
+                EditFishBase.Instance.AddParts(_nowEdit, id, pos);
+        break;
         }
     }
 

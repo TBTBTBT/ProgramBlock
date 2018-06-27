@@ -112,6 +112,7 @@ public class FishData
                 Eye._pos = pos;
                 break;
             case PartsType.Fin:
+                if(Fin.Count < 4)
                 Fin.Add(new PartsData(){_id = id,_pos = pos});
                 break;
         }
