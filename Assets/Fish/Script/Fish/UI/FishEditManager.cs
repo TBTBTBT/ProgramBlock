@@ -58,6 +58,11 @@ public class FishEditManager : SingletonMonoBehaviour<FishEditManager>
 
         }
     }
+
+    public void Save()
+    {
+        LocalDataManager.SaveFishData(_data);
+    }
     public void PlaceParts(int id,Vector2 pos)
     {
         Vector2 relPos = EditFishBase.Instance.RelativePos(MainCameraSingleton.Instance.ScreenToWorld(pos));

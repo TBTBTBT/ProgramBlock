@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class FishMasterData :SingletonMonoBehaviour<FishMasterData>{
@@ -89,6 +90,7 @@ public class FishMasterData :SingletonMonoBehaviour<FishMasterData>{
         };
     }
 }
+[System.Serializable]
 public class FishData
 {
     public int Id { get; set; }
@@ -146,27 +148,36 @@ public class FishData
 }
 public class LocalDataManager
 {
-    public FishData LoadFishData(int id)
-    {
-        string dataPath = "Fish:" + id;
-//        string idPath = "/Parts:";  
-        FishData fish = new FishData();
-        //List<PartsData> parts = PlayerPrefsUtility.LoadList<PartsData>(dataPath);
-        //fish.Body = parts[0];
-        //fish.Eye = parts[1];
-
-//        FishData ret = PlayerPrefs.GetString();
-        return fish;
-    }
     public void SaveFishData(int id)
     {
-        string dataPath = "Fish:" + id;
+        
 
     }
 
-    public void LoadDeckData(int id)
+    public static void SaveFishData(FishData data)
     {
-        string dataPath = "Deck:" + id;
+        string dataPath = "fish.txt";
+        var json = JsonUtility.ToJson(data);
+        var path = Application.dataPath + "/" + dataPath;
+        var writer = new StreamWriter(path, false); // 上書き
+        writer.WriteLine(json);
+        writer.Flush();
+        writer.Close();
+        Debug.Log("Save");
+    }
+
+    public void LoadDeckData(int i)
+    {
+
+    }
+    public static FishData LoadFishData(int id)
+    {
+        string dataPath = "fish.txt";
+        var info = new FileInfo(Application.dataPath + "/" + dataPath);
+        var reader = new StreamReader(info.OpenRead());
+        var json = reader.ReadToEnd();
+        var data = JsonUtility.FromJson<FishData>(json);
+        return data;
     }
 }
 
