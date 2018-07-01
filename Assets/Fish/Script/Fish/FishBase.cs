@@ -81,8 +81,8 @@ public abstract class FishBase : MonoBehaviour
     /// <summary>
     /// パーツデータを魚のパラメータに変換
     /// </summary>
-    /// <param name="parts"></param>
     public void InitData(FishData data){
+        int fixedPartsCount = 2;
         if (data.Body._id >= 0 && data.Eye._id >= 0)
         {
             Param = new CharaParam()
@@ -109,10 +109,10 @@ public abstract class FishBase : MonoBehaviour
 
 
             InstantiateParts(0,FishMasterData.MaterialPath[PartsType.Body] + data.Body._id, data.Body._pos);
-            InstantiateParts(1,FishMasterData.MaterialPath[PartsType.Eye] + data.Eye._id, data.Body._pos);
+            InstantiateParts(1,FishMasterData.MaterialPath[PartsType.Eye] + data.Eye._id, data.Eye._pos);
             for (int i = 0; i < data.Fin.Count; i++)
             {
-                InstantiateParts(i,FishMasterData.MaterialPath[PartsType.Fin] + data.Fin[i]._id, data.Body._pos);
+                InstantiateParts(i + fixedPartsCount,FishMasterData.MaterialPath[PartsType.Fin] + data.Fin[i]._id, data.Fin[i]._pos);
             }
         }
         else
@@ -154,10 +154,12 @@ public abstract class FishBase : MonoBehaviour
     
     void InstantiateParts(int i,string path,Vector2 pos)
     {
-
+        if (i < _partsRenderer.Count)
+        {
             _partsRenderer[i].material = Resources.Load<Material>(path);
-            _partsRenderer[i].material.SetVector("_RotateCenter",new Vector4(pos.x,pos.y,0,0));
+            _partsRenderer[i].material.SetVector("_RotateCenter", new Vector4(pos.x, pos.y, 0, 0));
             _partsRenderer[i].gameObject.SetActive(true);
+        }
 
         //プレハブが整ったら
         //        GameObject go = (GameObject)Instantiate(Resources.Load(path), _partsRoot);
@@ -221,13 +223,17 @@ public abstract class FishBase : MonoBehaviour
         {
             OnHitEnemy(enemy);
         }
-        Target = enemy.gameObject;
+
     }
 
     void Damage(FishBase enemy)
     {
-        Param.Hp -= enemy.Param.Attack;
-        Emotion.AddAngry(Param.Aggressive - enemy.Param.Attack);
+        if (enemy.Team != Team)
+        {
+            Param.Hp -= enemy.Param.Attack;
+            Emotion.AddAngry(Param.Aggressive - enemy.Param.Attack);
+            Target = enemy.gameObject;
+        }
     }
     void KnockBack(FishBase enemy)
     {

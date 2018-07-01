@@ -29,6 +29,58 @@ public class EditFishBase : SingletonMonoBehaviour<EditFishBase> {
             _partsRenderer[i].material.SetVector("_RotateCenter", new Vector4(pos.x, pos.y, 0, 0));
             _partsRenderer[i].gameObject.SetActive(true);
     }
+    public void HandOverParts(int i,Material material)
+    {
+        _partsRenderer[i].material = material;
+        
+    }
+    public void HideParts(int i){
+        _partsRenderer[i].gameObject.SetActive(false);
+    }
+    public void HideAll(){
+        _partsRenderer.ForEach(r => r.gameObject.SetActive(false));
+    }
+    public void UpdateParts(FishData data)
+    {
+        int fixedPartsCount = 2;
+        if(data.Body!= null){
+            if (data.Body._id >= 0)
+            {
+                RenderParts(0, FishMasterData.MaterialPath[PartsType.Body] + data.Body._id, data.Body._pos);
+                //ActiveHandle(0, ScreenPos(data.Body._pos));
+            }
+            else
+            {
+                HideParts(0);
+                //HideHandle(0);
+            }
+        }
+        if(data.Eye != null){
+            if (data.Eye._id >= 0)
+            {
+                RenderParts(1, FishMasterData.MaterialPath[PartsType.Eye] + data.Eye._id, data.Eye._pos);
+                ActiveHandle(1, ScreenPos(data.Eye._pos));
+            }
+            else
+            {
+                HideParts(1);
+                HideHandle(1);
+            }
+        }
+        for (int i = 0; i < _partsRenderer.Count - fixedPartsCount;i++){
+            if (i < data.Fin.Count)
+            {
+                RenderParts(fixedPartsCount + i, FishMasterData.MaterialPath[PartsType.Fin] + data.Fin[i]._id, data.Fin[i]._pos);
+                ActiveHandle(fixedPartsCount + i, ScreenPos(data.Fin[i]._pos));
+            }
+            else
+            {
+                HideParts(fixedPartsCount + i);
+                HideHandle(fixedPartsCount + i);
+            }
+        }
+    }
+    /*
     /// <summary>
     /// レンダリングするパーツを増やす　フィンは４つまで
     /// </summary>
@@ -56,6 +108,33 @@ public class EditFishBase : SingletonMonoBehaviour<EditFishBase> {
                 break;
         }
     }
+    public void RemoveParts( int index){
+
+
+        //フィンの場合つめる
+        if (index > 1)
+        {
+            if (_finCount > index - 2)
+            {
+                _finCount--;
+                for (int i = index; i < _partsRenderer.Count; i++)
+                {
+                    if (i < _partsRenderer.Count - 1)
+                    {
+                        HandOverParts(i, _partsRenderer[i + 1].material);
+                    }
+                    //詰めた後、フィンカウント＋主要パーツインデックス以上のRendererは非表示
+                    if (i > _finCount + 1){
+                        _partsRenderer[i].gameObject.SetActive(false);
+                    }
+                    //_partsHandles[i].UpdateInfo()
+                }
+            }
+
+        }else{
+            HideParts(index);
+        }
+    }*/
     /// <summary>
     /// パーツ操作ハンドルを表示
     /// </summary>
@@ -63,11 +142,14 @@ public class EditFishBase : SingletonMonoBehaviour<EditFishBase> {
     /// <param name="id">Identifier.</param>
     /// <param name="path">Path.</param>
     /// <param name="pos">Position.</param>
-    public void ActiveHandle(int index,int id,string path,Vector2 pos)
+    public void ActiveHandle(int index,Vector2 pos)
     {
         _partsHandles[index].gameObject.SetActive(true);
-        _partsHandles[index].Init(index,id,path);
+        _partsHandles[index].Init(index);//,path);
         _partsHandles[index].transform.position = pos;
+    }
+    public void HideHandle(int index){
+        _partsHandles[index].gameObject.SetActive(false);
     }
     public void ChangePartsPos(int index, Vector2 pos)
     {
@@ -76,9 +158,6 @@ public class EditFishBase : SingletonMonoBehaviour<EditFishBase> {
             _partsRenderer[index].material.SetVector("_RotateCenter", new Vector4(pos.x, pos.y, 0, 0));
             _partsRenderer[index].gameObject.SetActive(true);
         }
-    }
-    public void DeleteParts(int i){
-        _partsRenderer[i].gameObject.SetActive(false);
     }
 
     private float _unitWorldSize = 2;
@@ -90,5 +169,9 @@ public class EditFishBase : SingletonMonoBehaviour<EditFishBase> {
         r = (r / MainCameraSingleton.Instance.WorldMax().x) * (_unitWorldSize * _scale);
         return r;
     }
-
+    public Vector2 ScreenPos(Vector2 relPos){
+        Vector2 worldPos = relPos * MainCameraSingleton.Instance.WorldMax().x / (_unitWorldSize * _scale); 
+        worldPos += (Vector2)transform.position;
+        return MainCameraSingleton.Instance.WorldToScreen(worldPos);
+    }
 }

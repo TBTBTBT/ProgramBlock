@@ -6,9 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Old/Main/Scenes/Battle.unity
+    path: 
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Fish/Manager.unity
+    path: Assets/Fish/Scene/Manager.unity
     guid: 69aeabf8a3be74fd198fcb9ebfe9661d
+  - enabled: 1
+    path: Assets/Fish/Scene/Home.unity
+    guid: 4780322c00f544f49bbd8019b2e9fcb5
   m_configObjects: {}

@@ -45,6 +45,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager> {
     }
     void InstantiateFish(int id,Vector2 pos,int mem){
         FishData data = new FishData();//Masterからロード
+        data = LocalDataManager.LoadFishData(0);
         GameObject f = Instantiate(_fishBase,pos,Quaternion.identity);
         f.GetComponent<FishBase>().InitData(data);
         f.GetComponent<FishBase>().Team = mem;

@@ -9,12 +9,15 @@ using UnityEngine.UI;
 /// </summary>
 public class PartsHandle : MonoBehaviour
 {
-    [SerializeField] private RawImage _renderer;
+    //[SerializeField] private RawImage _renderer;
     private int _index = 0;
-    public void Init(int index,int id,string path)//0:body,1:eye
+    public void Init(int index)//0:body,1:eye
     {
-        _renderer.material = Resources.Load<Material>(path);
+        //_renderer.material = Resources.Load<Material>(path);
         _index = index;
+    }
+    public void UpdateInfo(Vector2 pos){
+        transform.position = pos;
     }
     public void OnDrag(BaseEventData e)
     {
@@ -24,6 +27,18 @@ public class PartsHandle : MonoBehaviour
     }
     public void OnPointerUp(BaseEventData e)
     {
-        FishEditManager.Instance.ReplaceParts(_index,((PointerEventData)e).position);
+        Vector2 pos = ((PointerEventData)e).position;
+        Vector2 relPos = EditFishBase.Instance.RelativePos(MainCameraSingleton.Instance.ScreenToWorld(pos));
+        Debug.Log(Mathf.Abs(relPos.x));
+        //範囲からはみ出したら消す
+        if (Mathf.Abs(relPos.x) > FishEditManager.Instance.MaxRect.x
+           || Mathf.Abs(relPos.y) > FishEditManager.Instance.MaxRect.y)
+        {
+            FishEditManager.Instance.RemoveParts(_index);
+        }
+        else
+        {
+            FishEditManager.Instance.ReplaceParts(_index, ((PointerEventData)e).position);
+        }
     }
 }

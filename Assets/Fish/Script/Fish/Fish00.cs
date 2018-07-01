@@ -10,7 +10,7 @@ public class Fish00 : FishBase
     protected override void Init()
     {
         int moveBlank = (ParamMax+5 - Param.Agility)*6;
-        Debug.Log(moveBlank);
+
         _onMove = new TickEvent(moveBlank);
         _onMove.AddListener(TimingMovement);
        

@@ -17,4 +17,7 @@ public class MainCameraSingleton : SingletonMonoBehaviour<MainCameraSingleton> {
     {
         return Camera.ScreenToWorldPoint(screen);
     }
+    public Vector2 WorldToScreen(Vector2 world){
+        return Camera.WorldToScreenPoint(world);
+    }
 }

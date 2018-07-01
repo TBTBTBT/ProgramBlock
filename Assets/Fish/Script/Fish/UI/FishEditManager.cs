@@ -11,6 +11,8 @@ public class FishEditManager : SingletonMonoBehaviour<FishEditManager>
     private List<PartsFrame> _partsFrame = new List<PartsFrame>();
     private Dictionary<string,byte> _partsMax = new Dictionary<string, byte>();
     private PartsType _nowEdit = PartsType.Body;
+    //配置限界
+    public readonly Vector2 MaxRect = new Vector2(2, 2);
 	// Use this for initialization
 	void Start ()
 	{
@@ -71,14 +73,15 @@ public class FishEditManager : SingletonMonoBehaviour<FishEditManager>
             case PartsType.Body:
                 
                 _data.AddParts(_nowEdit, id, new Vector2(0, 0));
-                EditFishBase.Instance.AddParts(_nowEdit,id,new Vector2(0,0));
+                //EditFishBase.Instance.AddParts(_nowEdit,id,new Vector2(0,0));
         break;
             case PartsType.Eye:
             case PartsType.Fin:
                 _data.AddParts(_nowEdit, id, relPos);
-                EditFishBase.Instance.AddParts(_nowEdit, id, pos);
+                //EditFishBase.Instance.AddParts(_nowEdit, id, pos);
         break;
         }
+        EditFishBase.Instance.UpdateParts(_data);
     }
 
     public void ReplaceParts(int index, Vector2 pos)
@@ -86,6 +89,11 @@ public class FishEditManager : SingletonMonoBehaviour<FishEditManager>
         Vector2 relPos = EditFishBase.Instance.RelativePos(MainCameraSingleton.Instance.ScreenToWorld(pos));
         Debug.Log("Replace p" + index);
         _data.ChangePartsPos(index, relPos);
-        EditFishBase.Instance.ChangePartsPos(index, relPos);
+        EditFishBase.Instance.UpdateParts(_data);
+    }
+    public void RemoveParts(int index){
+        Debug.Log("Remove" + index);
+        _data.RemoveParts(index);
+        EditFishBase.Instance.UpdateParts(_data);
     }
 }

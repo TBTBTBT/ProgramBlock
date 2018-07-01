@@ -72,7 +72,7 @@ public class FishMasterData :SingletonMonoBehaviour<FishMasterData>{
     static void LoadBody(){
         BodyDatas = new List<BodyData>(){
             new BodyData(){Weight = 3, Height = 3, Attack = 3},
-            new BodyData(){Weight = 3, Height = 3, Attack = 3}
+            new BodyData(){Weight = 3, Height = 1, Attack = 3}
         };
     }
     static void LoadEye(){
@@ -85,17 +85,17 @@ public class FishMasterData :SingletonMonoBehaviour<FishMasterData>{
     static void LoadFin()
     {
         FinDatas = new List<FinData>(){
-            new FinData(){Weight = 3, Height = 3, Attack = 3 ,Sight = 3},
-            new FinData(){Weight = 3, Height = 3, Attack = 3 ,Sight = 3}
+            new FinData(){Weight = 3, Attack = 3 ,Sight = 3},
+            new FinData(){Weight = 3, Attack = 3 ,Sight = 3}
         };
     }
 }
 [System.Serializable]
 public class FishData
 {
-    public int Id { get; set; }
-    public PartsData Body { get; set; }// 0:head 1:eye
-    public PartsData Eye { get; set; }
+    public int Id = -1;
+    public PartsData Body = new PartsData();// 0:head 1:eye
+    public PartsData Eye = new PartsData();
     public List<PartsData> Fin = new List<PartsData>();
     public FishData(){
         Body = new PartsData() { _id = -1, _pos = new Vector2(0,0) };
@@ -143,22 +143,33 @@ public class FishData
             }
         }
     }
+    public void RemoveParts(int index){
+        //フィンの場合つめる
+        int finIndex = index - 2;
+        if (finIndex  >= 0 && finIndex < Fin.Count)
+        {
 
+            Fin.RemoveAt(finIndex);
+            Debug.Log("RemoveFinAt" + finIndex);
+            Debug.Log("Fincount" + Fin.Count);
+
+        }
+        else
+        {
+            Eye._id = -1;
+        }
+    }
 
 }
 public class LocalDataManager
 {
-    public void SaveFishData(int id)
-    {
-        
-
-    }
 
     public static void SaveFishData(FishData data)
     {
+        string directoryPath = Application.dataPath + "/Savedata/";
         string dataPath = "fish.txt";
         var json = JsonUtility.ToJson(data);
-        var path = Application.dataPath + "/" + dataPath;
+        var path = directoryPath + dataPath;
         var writer = new StreamWriter(path, false); // 上書き
         writer.WriteLine(json);
         writer.Flush();
@@ -172,11 +183,13 @@ public class LocalDataManager
     }
     public static FishData LoadFishData(int id)
     {
+        string directoryPath = Application.dataPath + "/Savedata/"; 
         string dataPath = "fish.txt";
-        var info = new FileInfo(Application.dataPath + "/" + dataPath);
+        var info = new FileInfo(directoryPath + dataPath);
         var reader = new StreamReader(info.OpenRead());
         var json = reader.ReadToEnd();
         var data = JsonUtility.FromJson<FishData>(json);
+        Debug.Log("Load");
         return data;
     }
 }
