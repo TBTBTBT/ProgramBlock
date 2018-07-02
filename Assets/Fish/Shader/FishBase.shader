@@ -9,7 +9,7 @@
 		//_amplitude("Amplitude",Range(0.1,2)) = 0
 
 		_RotateCenter("Center",Vector) = (0,0,0,0)
-        _Tail("Tail",Range(0,1)) = 0
+        _Tail("Tail",Float) = 0
 		_Agg("Agg",Range(0,1)) = 0
 	}
 	SubShader
@@ -51,7 +51,7 @@
 				
 				return input;
 			}
-
+            /*
 			float2 CalculatePosition(float2 x1, float2 x2, float2 x3, float t)
 			{
 				if (t >= 0 && t <= 1)
@@ -60,25 +60,29 @@
 					+ 3 * (1 - t) * t * t * x2
 					+ t * t * t * x3;
 				else return float2(0, 0);
-			}
+			}*/
+            float _Tail;
+            float _Agg;
+            float2 CalculatePosition(float3 input, float angle)
+            {
+                float2 xz = float2(input.x,input.z);
+                //xz.x += sin(xz.x * angle);
+                xz.y += pow(xz.x-0.5,2) * cos((_Tail + xz.x/3) * PI * 2)* _Agg/4;
+                ///xz.y += pow(xz.x-0.25,2) * cos(_Tail * PI * 2 + PI/2)/2;
+                return xz;
+            }
             float3 aim(float3 input,float angle){
                 input.z = cos(angle*PI / 180)*input.z;
                 input.x = input.x + sin(angle*PI / 180)*input.z;
                 return input;
             }
-			float _Tail;
-			float _Agg;
+			
 			float3 bend(float3 input,float t) {
 				//_Tail = _Time * 20;
-				float2 xz = CalculatePosition(
-				float2(-0.5 + (sin(_Tail * PI * 4)) * _Agg/10, cos(_Tail * PI * 2) * _Agg / 5),
-				float2(0, -cos(_Tail * PI * 2 - PI/2) * _Agg / 10),
-				float2(0.5, 0),
-                t
-				);
+                float2 xz = CalculatePosition(input,1);
 				input.x = xz.x;
-				input.z = xz.y+ input.z ;
-                input = aim(input, cos(_Tail * PI * 2  )*(1-t)*40 * _Agg);
+				input.z = xz.y;
+                input = aim(input, cos((_Tail + xz.x/3) * PI * 2)*(1-t)*40 * _Agg);
 				return input;
 			}
 			

@@ -63,6 +63,7 @@ public abstract class FishBase : MonoBehaviour
             Rotate();
             Move();
             CheckField();
+            UpdateRenderer();
         }
     }
 
@@ -77,7 +78,13 @@ public abstract class FishBase : MonoBehaviour
     //    protected abstract void WhileHitEnemy();
     #endregion
 
-
+    void UpdateRenderer(){
+        _partsRenderer.ForEach(renderer=>{
+            renderer.material.SetFloat("_Tail",_rigidbody.velocity.magnitude/5);
+            renderer.material.SetFloat("_Agg", 0.5f);
+            //Debug.Log("aa");
+        });
+    }
     /// <summary>
     /// パーツデータを魚のパラメータに変換
     /// </summary>
