@@ -9,7 +9,8 @@
 		//_amplitude("Amplitude",Range(0.1,2)) = 0
 
 		_RotateCenter("Center",Vector) = (0,0,0,0)
-        _Tail("Tail",Float) = 0
+        _Tail("Tail",Range(0,1)) = 0
+		_Agg("Agg",Range(0,1)) = 0
 	}
 	SubShader
 	{
@@ -65,17 +66,19 @@
                 input.x = input.x + sin(angle*PI / 180)*input.z;
                 return input;
             }
+			float _Tail;
+			float _Agg;
 			float3 bend(float3 input,float t) {
-
+				//_Tail = _Time * 20;
 				float2 xz = CalculatePosition(
-				float2(-0.5, 0),
-				float2(0, 0.5),
+				float2(-0.5 + (sin(_Tail * PI * 4)) * _Agg/10, cos(_Tail * PI * 2) * _Agg / 5),
+				float2(0, -cos(_Tail * PI * 2 - PI/2) * _Agg / 10),
 				float2(0.5, 0),
                 t
 				);
 				input.x = xz.x;
-				input.z = xz.y+ input.z;
-                //input = aim(input,0);
+				input.z = xz.y+ input.z ;
+                input = aim(input, cos(_Tail * PI * 2  )*(1-t)*40 * _Agg);
 				return input;
 			}
 			
