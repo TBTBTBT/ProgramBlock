@@ -24,7 +24,7 @@ public class Fish00 : FishBase
         MoveToForward();
         if (Target)
         {
-            AngleLock();
+            //AngleLock();
         }
     }
 
@@ -44,7 +44,9 @@ public class Fish00 : FishBase
         {
             AngleChange();
         }
-
+        else{
+            AngleLock();
+        }
         AddSpeed();
         UpdateEmotion();
 
@@ -67,7 +69,7 @@ public class Fish00 : FishBase
     void AngleChange()
     {
   
-            AimDirection += Random.Range(-90, 90);
+            AimDirection += Random.Range(-60, 60);
             Mathf.Repeat(AimDirection, 360);
 
 

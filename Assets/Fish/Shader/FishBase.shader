@@ -9,7 +9,8 @@
 		//_amplitude("Amplitude",Range(0.1,2)) = 0
 
 		_RotateCenter("Center",Vector) = (0,0,0,0)
-        _Tail("Tail",Float) = 0
+        _Head("Head",Range(-1,1)) = 0
+        _Tail("Tail",Range(-1,1)) = 0
 		_Agg("Agg",Range(0,1)) = 0
 	}
 	SubShader
@@ -61,35 +62,55 @@
 					+ t * t * t * x3;
 				else return float2(0, 0);
 			}*/
+            float _Head;
             float _Tail;
             float _Agg;
-            float2 CalculatePosition(float3 input, float angle)
+            float2 aim(float2 center,float2 input,float angle){
+            float2 rel = input - center;
+            float2 o = float2(0,0);
+            float s = sin(angle*PI / 180);
+            float c = cos(angle*PI / 180);
+                o.x = center.x - s * rel.y + c * rel.x;
+                o.y = center.y - c * rel.y - s * rel.x;
+
+                return o;
+            }
+            float2 CalculatePosition(float3 input,float uv)
             {
-                float2 xz = float2(input.x,input.z);
-                //xz.x += sin(xz.x * angle);
-                xz.y += pow(xz.x-0.5,2) * cos((_Tail + xz.x/3) * PI * 2)* _Agg/4;
-                ///xz.y += pow(xz.x-0.25,2) * cos(_Tail * PI * 2 + PI/2)/2;
+                //uv -= ;
+                float2 xz = float2(input.x ,input.z);
+                float2 center= float2(0, _Head/40 );// * _Agg;
+                //center.y *= (uv - 0.7);
+                float rel = (_Head) * (uv - 0.5);
+                rel += _Tail* (1-(uv - 0.5));
+                //xz.y += center.y;
+//                xz.y += pow(xz.x-0.5,2) * cos((_Tail + xz.x/3) * PI * 2)* _Agg/4;
+                //xz.y += center.y;
+                xz = aim (center,xz,-rel *35 * (uv - 1)* _Agg);
                 return xz;
             }
+
             float3 aim(float3 input,float angle){
-                input.z = cos(angle*PI / 180)*input.z;
                 input.x = input.x + sin(angle*PI / 180)*input.z;
+                input.z = cos(angle*PI / 180)*input.z;
+
                 return input;
             }
 			
 			float3 bend(float3 input,float t) {
 				//_Tail = _Time * 20;
-                float2 xz = CalculatePosition(input,1);
+                float2 xz = CalculatePosition(input,t);
 				input.x = xz.x;
-				input.z = xz.y;
-                input = aim(input, cos((_Tail + xz.x/3) * PI * 2)*(1-t)*40 * _Agg);
+				input.z = -xz.y;
+//                input = aim(input, cos((_Tail + xz.x/3) * PI * 2)*(1-t)*40 * _Agg);
+                //input = aim(input, _Tail *(1-t)*90 * _Agg);
 				return input;
 			}
 			
 			v2f vert (appdata v)
 			{
 				v2f o;
-				o.vertex = UnityObjectToClipPos(bend(rotate(v.vertex,_RotateCenter.xy),v.uv));
+				o.vertex = UnityObjectToClipPos(bend(rotate(v.vertex,_RotateCenter.xy) ,v.uv.x));
 				o.uv = v.uv;
 				return o;
 			}

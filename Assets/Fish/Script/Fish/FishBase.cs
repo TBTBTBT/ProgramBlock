@@ -39,6 +39,10 @@ public abstract class FishBase : MonoBehaviour
     }
     public float AimDirection { get; set; }//向き 0 = 右
     public GameObject Target { get; set; }//敵
+    //mitame
+    private float _tail = 0;
+    private float _head = 0;
+
 
    // List<GameObject> _parts;
     
@@ -79,11 +83,21 @@ public abstract class FishBase : MonoBehaviour
     #endregion
 
     void UpdateRenderer(){
-        _partsRenderer.ForEach(renderer=>{
-            renderer.material.SetFloat("_Tail",_rigidbody.velocity.magnitude/5);
-            renderer.material.SetFloat("_Agg", 0.5f);
+        float head = (AimDirection - ActualDirection) / 5;
+        head += Mathf.Cos(Time.time*10);
+        head = Mathf.Abs(head) > 2 ? Mathf.Sign(head) * 2 : head;
+        _head = Mathf.Lerp(_head, head, 0.3f);
+        _tail = Mathf.Lerp(_tail,_head,0.01f);
+       // Debug.Log( ActualDirection);
+        for (int i = 0; i < _partsRenderer.Count;i++){
+            _partsRenderer[i].material.SetFloat("_Head", _head);
+            _partsRenderer[i].material.SetFloat("_Tail", _tail);
+
+            _partsRenderer[i].material.SetFloat("_Agg", i == 0?1:0.5f);
+        }
+
+            
             //Debug.Log("aa");
-        });
     }
     /// <summary>
     /// パーツデータを魚のパラメータに変換
@@ -175,7 +189,8 @@ public abstract class FishBase : MonoBehaviour
     }
     void Rotate()
     {
-        _direction = Mathf.LerpAngle(_direction, AimDirection, 0.2f);
+        _direction = Mathf.LerpAngle(_direction, AimDirection, 0.1f);
+        Mathf.Repeat(_direction, 360);
         transform.localRotation = Quaternion.AngleAxis(_direction, new Vector3(0, 0, 1));
     }
     void ChangeAggressiveState()
