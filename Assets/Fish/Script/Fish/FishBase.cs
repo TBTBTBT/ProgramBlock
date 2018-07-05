@@ -84,9 +84,9 @@ public abstract class FishBase : MonoBehaviour
 
     void UpdateRenderer(){
         float head = (AimDirection - ActualDirection) / 5;
-        head += Mathf.Cos(Time.time*10);
+       // head += Mathf.Cos(Time.time*10);
         head = Mathf.Abs(head) > 2 ? Mathf.Sign(head) * 2 : head;
-        _head = Mathf.Lerp(_head, head, 0.3f);
+        _head = Mathf.Lerp(_head, head, 0.1f);
         _tail = Mathf.Lerp(_tail,_head,0.01f);
        // Debug.Log( ActualDirection);
         for (int i = 0; i < _partsRenderer.Count;i++){
@@ -189,7 +189,7 @@ public abstract class FishBase : MonoBehaviour
     }
     void Rotate()
     {
-        _direction = Mathf.LerpAngle(_direction, AimDirection, 0.1f);
+        _direction = Mathf.LerpAngle(_direction, AimDirection, 0.05f);
         Mathf.Repeat(_direction, 360);
         transform.localRotation = Quaternion.AngleAxis(_direction, new Vector3(0, 0, 1));
     }

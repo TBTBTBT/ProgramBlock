@@ -72,7 +72,7 @@ public class FishMasterData :SingletonMonoBehaviour<FishMasterData>{
     static void LoadBody(){
         BodyDatas = new List<BodyData>(){
             new BodyData(){Weight = 3, Height = 3, Attack = 3},
-            new BodyData(){Weight = 3, Height = 1, Attack = 3}
+            new BodyData(){Weight = 1, Height = 3, Attack = 3}
         };
     }
     static void LoadEye(){
