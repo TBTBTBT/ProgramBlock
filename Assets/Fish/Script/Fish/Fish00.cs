@@ -5,7 +5,7 @@ using UnityEngine;
 public class Fish00 : FishBase
 {
     private TickEvent _onMove;
-    private float _friction = 0.9f;
+    private float _friction = 0.95f;
     private float _speed = 0;
     protected override void Init()
     {
@@ -68,8 +68,9 @@ public class Fish00 : FishBase
     }
     void AngleChange()
     {
-  
-            AimDirection += Random.Range(-60, 60);
+        float aim = MathUtil.GetAim(transform.position, Vector2.zero);
+            //AimDirection 
+        AimDirection = aim+= Random.Range(-60, 60);;
             Mathf.Repeat(AimDirection, 360);
 
 

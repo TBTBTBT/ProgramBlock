@@ -83,11 +83,17 @@ public abstract class FishBase : MonoBehaviour
     #endregion
 
     void UpdateRenderer(){
-        float head = (AimDirection - ActualDirection) / 5;
+        float headMax = 3; 
+        float rad = Mathf.DeltaAngle(ActualDirection,AimDirection)/80;
+
+        rad = Mathf.Abs(rad) > Mathf.PI/2 ? Mathf.Sign(rad) * Mathf.PI / 2 : rad;
+        float head = Mathf.Sin(rad) *headMax;
+        //Debug.Log(AimDirection + "," + ActualDirection + "," + rad);
        // head += Mathf.Cos(Time.time*10);
-        head = Mathf.Abs(head) > 2 ? Mathf.Sign(head) * 2 : head;
-        _head = Mathf.Lerp(_head, head, 0.1f);
-        _tail = Mathf.Lerp(_tail,_head,0.01f);
+        head = Mathf.Abs(head) > headMax  ? Mathf.Sign(head) * headMax : head;
+        _head = Mathf.Lerp(_head, -head, 0.2f);
+        _tail = Mathf.Lerp(_tail,_head,0.08f);
+        Debug.Log(_head  + "," + _tail);
        // Debug.Log( ActualDirection);
         for (int i = 0; i < _partsRenderer.Count;i++){
             _partsRenderer[i].material.SetFloat("_Head", _head);
@@ -189,7 +195,7 @@ public abstract class FishBase : MonoBehaviour
     }
     void Rotate()
     {
-        _direction = Mathf.LerpAngle(_direction, AimDirection, 0.05f);
+        _direction = Mathf.LerpAngle(_direction, AimDirection, 0.1f);
         Mathf.Repeat(_direction, 360);
         transform.localRotation = Quaternion.AngleAxis(_direction, new Vector3(0, 0, 1));
     }
@@ -260,7 +266,7 @@ public abstract class FishBase : MonoBehaviour
     void KnockBack(FishBase enemy)
     {
 
-        _rigidbody.velocity += (Vector2)(transform.position - (enemy.transform.position)).normalized * (enemy.Param.Attack * 2.0f);
+        _rigidbody.velocity += (Vector2)(transform.position - (enemy.transform.position)).normalized * (enemy.Param.Attack);
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {

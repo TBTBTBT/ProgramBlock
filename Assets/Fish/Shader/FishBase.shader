@@ -9,8 +9,8 @@
 		//_amplitude("Amplitude",Range(0.1,2)) = 0
 
 		_RotateCenter("Center",Vector) = (0,0,0,0)
-        _Head("Head",Range(-1,1)) = 0
-        _Tail("Tail",Range(-1,1)) = 0
+        _Head("Head",Range(-2,2)) = 0
+        _Tail("Tail",Range(-2,2)) = 0
 		_Agg("Agg",Range(0,1)) = 0
 	}
 	SubShader

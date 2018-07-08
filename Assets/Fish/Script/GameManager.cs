@@ -7,6 +7,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager> {
 
     private List<DeckData> _decks = new List<DeckData>();
     private Vector2 _fieldSize = new Vector2(14, 8);
+
     public Vector2 FieldSize
     {
         get { return _fieldSize; }
@@ -18,7 +19,10 @@ public class GameManager : SingletonMonoBehaviour<GameManager> {
     }
 	void Start () {
         AddDeck(0);
-	    AddDeck(0);
+        AddDeck(0);
+ 
+        AddDeck(0);
+	   // AddDeck(0);
 	    SpawnAll();
 	}
 
