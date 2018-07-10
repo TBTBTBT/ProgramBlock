@@ -5,7 +5,7 @@ using UnityEngine;
 public class Fish00 : FishBase
 {
     private TickEvent _onMove;
-    private float _friction = 0.95f;
+    private float _friction = 0.9f;
     private float _speed = 0;
     protected override void Init()
     {
@@ -54,7 +54,7 @@ public class Fish00 : FishBase
     void AddSpeed()
     {
         
-        _speed = 1;
+        _speed = 2f;
     }
 
     void UpdateEmotion()
