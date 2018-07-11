@@ -97,7 +97,7 @@ public abstract class FishBase : MonoBehaviour
        // Debug.Log( ActualDirection);
         for (int i = 0; i < _partsRenderer.Count;i++){
             _partsRenderer[i].material.SetFloat("_Head", _head);
-            _partsRenderer[i].material.SetFloat("_Tail", _tail);
+            _partsRenderer[i].material.SetFloat("_Tail", _tail);    
 
             _partsRenderer[i].material.SetFloat("_Agg", i == 0?1:0.5f);
         }
@@ -148,6 +148,18 @@ public abstract class FishBase : MonoBehaviour
             ParamInit();
             DefaultMaterial();
         }
+        //dummy ---------------------------
+        Param = new CharaParam()
+        {
+            Hp = 1,
+            Height = 1,
+            Attack = 1,
+            Weight = 20,
+            Speed = 1,
+            Agility = 1,
+            Sight = 1
+        };
+        //dummy ---------------------------
         Init();
         isInit = true;
     }
