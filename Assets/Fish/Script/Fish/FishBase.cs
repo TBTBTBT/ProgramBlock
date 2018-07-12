@@ -156,7 +156,7 @@ public abstract class FishBase : MonoBehaviour
             Attack = 1,
             Weight = 20,
             Speed = 1,
-            Agility = 1,
+            Agility = 20,
             Sight = 1
         };
         //dummy ---------------------------
