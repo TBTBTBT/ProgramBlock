@@ -28,11 +28,12 @@
 		float4 vertex : SV_POSITION;
 	};
 		sampler2D _MainTex;
+          uniform float4 _MainTex_ST;
 	v2f vert(appdata v)
 	{
 		v2f o;
 		o.vertex = UnityObjectToClipPos(v.vertex);
-		o.uv = v.uv;
+		o.uv = float2(v.uv.xy * _MainTex_ST.xy + _MainTex_ST.zw);
 		return o;
 	}
 //noise
@@ -86,6 +87,9 @@
 		g.yz = a0.yz * x12.xz + h.yz * x12.yw;
 		return 130.0 * dot(m, g);
 	}
+    float water(){
+    return 0;
+    }
 	float4 _LightColor;
 	float4 _DeepColor;
 		fixed4 frag(v2f i) : SV_Target
@@ -104,7 +108,8 @@
 		float m = (1 - pos.y/25) < 0 ? 0 : (1 - pos.y/25);
 		float f = noise(o  * m);
 		f = f < 0 ? 0 : f;
-			col.xyz =  _DeepColor.xyz +  _LightColor.xyz *(f+m) ;
+            col.w = 1;
+			col.xyz =  _DeepColor.xyz +  _LightColor.xyz *(f + m) *col.w * col.xyz ;
 			return col;
 		}
 		ENDCG
@@ -112,3 +117,24 @@
     }
     FallBack "Diffuse"
 }
+/*
+fixed4 frag(v2f i) : SV_Target
+        {
+            fixed4 col = tex2D(_MainTex, i.uv);
+        float2 pos = i.uv;
+        pos.x = (pos.x -0.5)* (3 + pos.y * 20);
+        pos.y = pos.y * (10+ pos.y*50) + 10;
+        float2 vel = _Time;
+        float o = snoise(pos + vel);
+        float2 value = float2(0, 0);
+        value.y = sin(_Time*0.02);
+        float a = snoise(pos*value*3.1415);
+        vel = float2(cos(a*0.1), sin(a));
+        o += snoise(pos + vel);
+        float m = (1 - pos.y/25) < 0 ? 0 : (1 - pos.y/25);
+        float f = noise(o  * m);
+        f = f < 0 ? 0 : f;
+            col.xyz =  _DeepColor.xyz +  _LightColor.xyz *(f+m) ;
+            return col;
+        }
+*/
