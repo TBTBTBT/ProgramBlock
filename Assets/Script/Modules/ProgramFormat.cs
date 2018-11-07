@@ -9,6 +9,10 @@ public class ProgramFormat
 
     public void AddOrder(Vector2Int pos, string order, Vector2Int next, Vector2Int next2 )
     {
-        OrderList[pos.x, pos.y] = order + $":{next.x},{next.y}:{next2.x}:{next2.y}";
+        OrderList[pos.x, pos.y] = $"{pos.x},{pos.y}:{order}:{next.x},{next.y}:{next2.x}:{next2.y};";
+    }
+    public void AddOrders(string[] orders)
+    {
+        //OrderList[pos.x, pos.y] = $"";
     }
 }

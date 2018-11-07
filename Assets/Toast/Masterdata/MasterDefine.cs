@@ -21,7 +21,15 @@ public class MstUnitRecord : IMasterRecord
     public int spd { get; set; }
 
     public int allowequipid { get; set; }
-    public string jobname = "";
-
+    public string jobname { get; set; }
+}
+[Serializable]
+[MasterPath("/Master/mst_func.json")]
+public class MstFunctionRecord : IMasterRecord
+{
+    public int id { get; set; }
+    public string key { get; set; }
+    public string name { get; set; }
+    public int waitframe { get; set; }
 
 }
