@@ -14,9 +14,11 @@ public static class Interpreter
         return ret;
     }
     //命令を実行し次の行を返す
-    public static Vector2Int Execute(string order)
+    public static Vector2Int Execute(string order, out int wait)
     {
+        //マスターから引く
         Vector2Int next = new Vector2Int(0, 0);
+        wait = 1;
         //xx:xx:xx
         return next;
     }

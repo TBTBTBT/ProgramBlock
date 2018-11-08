@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(CircleCollider2D))]
 public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
 
     //---------------------------------------------------------
@@ -12,7 +14,6 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
         Init,
         Wait,
         Process,
-        Do
     }
     //---------------------------------------------------------
     //class
@@ -21,7 +22,8 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
     //---------------------------------------------------------
     //fields
     //---------------------------------------------------------
-
+    private Rigidbody2D _rigidbody;
+    private CircleCollider2D _collider;
     //Program
 
     ProgramFormat _program;
@@ -37,9 +39,10 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
     //phisics
 
     public Vector2 Velocity { get; set; }
+    public Vector2 KnockBakcVelocity { get; set; }
     public float Friction { get; set; }
 
-
+    public Vector2 Direction { get; set; }
 
     //---------------------------------------------------------
     //methods
@@ -54,7 +57,44 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
             Next(State.Process);
         }
 	}
-	IEnumerator Init()
+
+    //phisics
+
+    void Move()
+    {
+
+        Velocity *= Friction;
+
+    }
+
+    //basicCommand
+
+    public void AddVelocity(Vector2 velocity)
+    {
+        Velocity += velocity;
+    }
+
+    public void SetVelocity(Vector2 velocity)
+    {
+        Velocity = velocity;
+    }
+
+    public void KnockBack(Vector2 velocity)
+    {
+        KnockBakcVelocity += velocity;
+    }
+    public void Action(int num)
+    {
+        ObjectManager.Instance.InstantiateObject(num);
+    }
+
+    public void SetDirection(Vector2 dir)
+    {
+
+    }
+    //sequence
+
+    IEnumerator Init()
     {
         yield return null;
         //params初期化
@@ -67,6 +107,8 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
         _nowPointer = new Vector2Int(0, 0);
         //MasterData参照
         //MasterdataManager.Get<MstUnitRecord>();
+        _rigidbody = GetComponent<Rigidbody2D>();
+        _collider = GetComponent<CircleCollider2D>();
         while(_program == null){
             yield return null;
         } 
@@ -81,16 +123,22 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
     IEnumerator Process()
     {
         int wait = 0;//masterから
-        _nowPointer = Interpreter.Execute(_program.OrderList[_nowPointer.x, _nowPointer.y]);
-        while(wait > 0){
-            wait--;
+        while (true)
+        {
+            Move();
+
+            if (wait == 0)
+            {
+                _nowPointer = Interpreter.Execute(_program.OrderList[_nowPointer.x, _nowPointer.y],out wait);
+            }
+
+            if (wait > 0)
+            {
+                wait--;
+            }
+
             yield return null;
         }
-        yield return null;
     }
 
-    IEnumerator Do()
-    {
-        yield return null;
-    }
 }

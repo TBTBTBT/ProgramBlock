@@ -4,26 +4,26 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using UnityEngine;
 
-public class OrderMaster : MonoBehaviour {
-    private static readonly Dictionary<string,Func<UnitCore, bool>> _functions = new Dictionary<string, Func<UnitCore, bool>>()
+public static class OrderMaster{
+    private static readonly Dictionary<string,Func<UnitCore,int, bool>> _functions = new Dictionary<string, Func<UnitCore,int, bool>>
     {
-        //前進
-        {"v1", _ => {
-         //  _.Velocity
-            return true;
-        }},
-        //後退
-        {"v2", _ => {
-            //  _.Velocity
+        //Move
+        {"v1", (unit,param) =>
+        {
+            unit.SetVelocity(unit.Direction * ((float)unit.Spd/10));
             return true;
         }},
         //注目
-        {"v3", _ => {
-            //  _.Velocity
+        {"v10", (unit,param)  => {
+            //GameObject.FindAll(Enemy的な
             return true;
         }},
-        {"b1", _ => {
-            //  _.Velocity
+        //行動
+        {"v20", (unit,param)  => {
+            //GameObject.FindAll(Enemy的な
+            return true;
+        }},
+        {"b1", (unit,param)  => {
             if (true)
             {
                 return true;
@@ -32,13 +32,5 @@ public class OrderMaster : MonoBehaviour {
         }},
 
     };
-    // Use this for initialization
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
 }

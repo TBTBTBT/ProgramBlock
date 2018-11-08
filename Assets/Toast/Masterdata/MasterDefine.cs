@@ -28,8 +28,19 @@ public class MstUnitRecord : IMasterRecord
 public class MstFunctionRecord : IMasterRecord
 {
     public int id { get; set; }
-    public string key { get; set; }
+    public string functionkey { get; set; }//処理
+    public string actionkey { get; set; }//見た目
     public string name { get; set; }
+    public int waitframe { get; set; }
+
+}
+[Serializable]
+[MasterPath("/Master/mst_object.json")]
+public class MstObjectRecord : IMasterRecord
+{
+    public int id { get; set; }
+    public string name { get; set; }
+    public string prefabPath { get; set; }
     public int waitframe { get; set; }
 
 }
