@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviourWithStatemachine<GameManager.State>
 {
-    private List<UnitCore> _units;
+    private List<UnitCore> _units = new List<UnitCore>();
 
     public enum State
     {
@@ -22,7 +22,9 @@ public class GameManager : MonoBehaviourWithStatemachine<GameManager.State>
     }
     IEnumerator Init()
     {
-
+        _units.ForEach(_ => Destroy(_));
+        _units.Clear();
+        _units.Add(Instantiate(Resources.Load<GameObject>("Unit/Unit_00")).GetComponent<UnitCore>());
 
         yield return null;
     }
