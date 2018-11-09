@@ -48,6 +48,7 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
     //methods
     //---------------------------------------------------------
     public void Setup(string program){
+        Debug.Log("SetUpProgram");
         _program = Interpreter.Parse(program);
     }
 	public void StartProcess()

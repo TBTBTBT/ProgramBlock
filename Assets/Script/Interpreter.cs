@@ -9,12 +9,22 @@ public static class Interpreter
     {
         ProgramFormat ret = new ProgramFormat();
         string[] orders = program.Split(';');
-
-        ret.AddOrders(orders);
+        foreach (var order in orders)
+        {
+            string[] parse = order.Split(':');
+            if (parse.Length > 4)
+            {
+                string[] pos = parse[0].Split(',');
+                Debug.Log(order);
+                Debug.Log(parse[0]);
+            }
+            
+        }
+        //ret.ParseOrders(orders);
         return ret;
     }
     //命令を実行し次の行を返す
-    public static Vector2Int Execute(string order, out int wait)
+    public static Vector2Int Execute(ProgramFormat.OrderFormat order, out int wait)
     {
         //マスターから引く
         Vector2Int next = new Vector2Int(0, 0);
