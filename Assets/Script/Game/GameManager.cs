@@ -6,6 +6,7 @@ public class GameManager : MonoBehaviourWithStatemachine<GameManager.State>
 {
     private List<UnitCore> _units = new List<UnitCore>();
 
+    public List<UnitCore> Units => _units;
     public enum State
     {
         Init,
@@ -33,7 +34,8 @@ public class GameManager : MonoBehaviourWithStatemachine<GameManager.State>
     {
         foreach (var unit in _units)
         {
-            unit.Setup("0,0:v1:0:0,1;0,1:v2:0:0,0");
+            unit.Setup(this,1,"0,0:v1:0:0,1;0,1:v10:0:0,0");
+            unit.StartProcess();
         }
 
         yield return null;

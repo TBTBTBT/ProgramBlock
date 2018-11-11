@@ -10,16 +10,18 @@ public class ProgramFormat
         public Vector2Int yes = new Vector2Int(0,0);
         public Vector2Int no = new Vector2Int(0, 0);
         public string key = "";
+        public int param = 0;
     }
     public OrderFormat[,] OrderList = new OrderFormat[5,5];
 
-    public void AddOrder(Vector2Int pos, string order, Vector2Int next, Vector2Int next2 )
+    public void AddOrder(Vector2Int pos, string order,int param, Vector2Int next, Vector2Int next2 )
     {
         OrderList[pos.x, pos.y] = new OrderFormat()
         {
             key = order,
             yes = next,
             no = next2,
+            param = param
         };
         //OrderList[pos.x, pos.y] = $"{pos.x},{pos.y}:{order}:{next.x},{next.y}:{next2.x}:{next2.y};";
     }

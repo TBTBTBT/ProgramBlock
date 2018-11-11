@@ -36,6 +36,9 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
     public int Def { get; set; }
     public int Spd { get; set; }
 
+    //gameInfo
+    public int TeamId { get; set; }
+    public GameManager Manager { get; set; }
     //phisics
 
     public Vector2 Velocity { get; set; }
@@ -47,25 +50,28 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
     //---------------------------------------------------------
     //methods
     //---------------------------------------------------------
-    public void Setup(string program){
+    public void Setup(GameManager manager,int team,string program){
+        Manager = manager;
+        TeamId = team;
         Debug.Log("SetUpProgram");
         _program = Interpreter.Parse(program);
     }
 	public void StartProcess()
 	{
-        if (Current == State.Wait)
-        {
+        //if (Current == State.Wait)
+       // {
             Next(State.Process);
-        }
+       // }
 	}
 
-    //phisics
+	//phisics
 
-    void Move()
+	void Move()
     {
 
         Velocity *= Friction;
-
+        _rigidbody.velocity = Velocity;
+        //_rigidbody.S
     }
 
     //basicCommand
@@ -94,25 +100,27 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
 
     }
     //sequence
-
-    IEnumerator Init()
-    {
-        yield return null;
+    void SetParams(){
         //params初期化
         Hp = 100;
         Atk = 1;
         Def = 1;
         Spd = 1;
-        Velocity = new Vector2(0,0);
-        Friction = 1;
+        Velocity = new Vector2(0, 0);
+        Direction = new Vector2(0, 1);
+        Friction = 0.9f;
         _nowPointer = new Vector2Int(0, 0);
         //MasterData参照
+    }
+    IEnumerator Init()
+    {
+
+
         //MasterdataManager.Get<MstUnitRecord>();
         _rigidbody = GetComponent<Rigidbody2D>();
         _collider = GetComponent<CircleCollider2D>();
-        while(_program == null){
-            yield return null;
-        } 
+        Next(State.Wait);
+        yield return null;
     }
     IEnumerator Wait()
     {
@@ -123,6 +131,7 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
 
     IEnumerator Process()
     {
+        SetParams();
         int wait = 0;//masterから
         while (true)
         {
@@ -130,7 +139,7 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
 
             if (wait == 0)
             {
-                _nowPointer = Interpreter.Execute(_program.OrderList[_nowPointer.x, _nowPointer.y],out wait);
+                _nowPointer = Interpreter.Execute(this,_program.OrderList[_nowPointer.x, _nowPointer.y],out wait);
             }
 
             if (wait > 0)

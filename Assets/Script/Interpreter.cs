@@ -12,11 +12,23 @@ public static class Interpreter
         foreach (var order in orders)
         {
             string[] parse = order.Split(':');
-            if (parse.Length > 4)
+            if (parse.Length > 3)
             {
-                string[] pos = parse[0].Split(',');
+                string[] spos = parse[0].Split(',');
+                string func = parse[1];
+                string sparam = parse[2];
+                string[] yes = parse[3].Split(',');
+                Vector2Int pos = new Vector2Int(int.Parse(spos[0]), int.Parse(spos[1]));
+                int param = int.Parse(sparam);
+                Vector2Int next = new Vector2Int(int.Parse(yes[0]), int.Parse(yes[1]));
+                Vector2Int next2 = new Vector2Int(0, 0);
+                if (parse.Length > 4)
+                {
+                    string[] no = parse[4].Split(',');
+                    next2 = new Vector2Int(int.Parse(no[0]), int.Parse(no[1]));
+                }
+                ret.AddOrder(pos,func,param,next,next2);
                 Debug.Log(order);
-                Debug.Log(parse[0]);
             }
             
         }
@@ -24,11 +36,20 @@ public static class Interpreter
         return ret;
     }
     //命令を実行し次の行を返す
-    public static Vector2Int Execute(ProgramFormat.OrderFormat order, out int wait)
+    public static Vector2Int Execute(UnitCore self,ProgramFormat.OrderFormat order, out int wait)
     {
         //マスターから引く
         Vector2Int next = new Vector2Int(0, 0);
-        wait = 1;
+        if(OrderMaster.Functions.ContainsKey(order.key)){
+            if (OrderMaster.Functions[order.key](self, order.param))
+            {
+                next = order.yes;
+            }
+            else{
+                next = order.no;
+            }
+        }
+        wait = 20;
         //xx:xx:xx
         return next;
     }
