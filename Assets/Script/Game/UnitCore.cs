@@ -39,6 +39,8 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
     //gameInfo
     public int TeamId { get; set; }
     public GameManager Manager { get; set; }
+    //Thinking
+    public UnitCore Target { get; set; }
     //phisics
 
     public Vector2 Velocity { get; set; }
@@ -50,7 +52,7 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
     //---------------------------------------------------------
     //methods
     //---------------------------------------------------------
-    public void Setup(GameManager manager,int team,string program){
+    public void Setup(long id,GameManager manager,int team,string program){
         Manager = manager;
         TeamId = team;
         Debug.Log("SetUpProgram");
