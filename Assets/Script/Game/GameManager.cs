@@ -34,7 +34,7 @@ public class GameManager : MonoBehaviourWithStatemachine<GameManager.State>
     {
         foreach (var unit in _units)
         {
-            unit.Setup(0,this,1,"0,0:v1:0:0,1;0,1:v10:0:0,0");
+            unit.Setup(0,this,1,"0,0:v1:0:1,0;1,0:v10:0:0,0");
             unit.StartProcess();
         }
 
