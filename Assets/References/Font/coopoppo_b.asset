@@ -4,26 +4,27 @@
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
   m_Name: coopoppo_b
   m_EditorClassIdentifier: 
-  hashCode: 0
+  hashCode: 504762798
   material: {fileID: 21189950205945686}
-  materialHashCode: 0
+  materialHashCode: -2035183003
   fontAssetType: 2
   m_fontInfo:
     Name: coopoppo bold
     PointSize: 116
-    Scale: 0
+    Scale: 1
     CharacterCount: 97
     LineHeight: 116
     Baseline: 0
     Ascender: 100
-    CapHeight: 0
+    CapHeight: 36
     Descender: -17
     CenterLine: 0
     SuperscriptOffset: 100
@@ -33,7 +34,7 @@ MonoBehaviour:
     UnderlineThickness: 5.4375
     strikethrough: 30.181818
     strikethroughThickness: 5.4375
-    TabWidth: 0
+    TabWidth: 580
     Padding: 5
     AtlasWidth: 512
     AtlasHeight: 512
@@ -42,10 +43,10 @@ MonoBehaviour:
   - id: 32
     x: 5
     y: 507
-    width: 0
-    height: 0
+    width: 58
+    height: 117
     xOffset: 0
-    yOffset: 0
+    yOffset: 100
     xAdvance: 58
     scale: 1
   - id: 33
@@ -929,19 +930,23 @@ MonoBehaviour:
       yAdvance: 0
     xOffset: 0
   fallbackFontAssets: []
-  fontCreationSettings:
-    fontSourcePath: 
-    fontSizingMode: 0
-    fontSize: 0
-    fontPadding: 0
-    fontPackingMode: 0
-    fontAtlasWidth: 0
-    fontAtlasHeight: 0
-    fontCharacterSet: 0
+  m_CreationSettings:
+    sourceFontFileName: 
+    sourceFontFileGUID: 
+    pointSizeSamplingMode: 0
+    pointSize: 0
+    padding: 0
+    packingMode: 0
+    atlasWidth: 0
+    atlasHeight: 0
+    characterSetSelectionMode: 0
+    characterSequence: 
+    referencedFontAssetGUID: 
+    referencedTextAssetGUID: 
     fontStyle: 0
-    fontStlyeModifier: 0
-    fontRenderMode: 0
-    fontKerning: 0
+    fontStyleModifier: 0
+    renderMode: 0
+    includeFontFeatures: 0
   fontWeights:
   - regularTypeface: {fileID: 0}
     italicTypeface: {fileID: 0}
@@ -974,7 +979,8 @@ Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: coopoppo_b Material
   m_Shader: {fileID: 4800000, guid: 128e987d567d4e2c824d754223b3f3b0, type: 3}
   m_ShaderKeywords: 
@@ -1013,7 +1019,8 @@ Material:
 Texture2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: coopoppo_b Atlas
   m_ImageContentsHash:
     serializedVersion: 2
