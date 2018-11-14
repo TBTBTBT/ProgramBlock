@@ -1,0 +1,16 @@
+{"Records":[
+{
+"id":0,
+"functionkey":"v0",
+"actionkey":"",
+"name":"Move",
+"waitframe":10
+},
+{
+"id":1,
+"functionkey":"v10",
+"actionkey":"",
+"name":"Target",
+"waitframe":10
+}
+]}

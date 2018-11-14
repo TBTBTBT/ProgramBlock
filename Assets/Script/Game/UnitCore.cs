@@ -66,16 +66,6 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
        // }
 	}
 
-	//phisics
-
-	void Move()
-    {
-
-        Velocity *= Friction;
-        _rigidbody.velocity = Velocity;
-        //_rigidbody.S
-    }
-
     //basicCommand
 
     public void AddVelocity(Vector2 velocity)
@@ -101,7 +91,18 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
     {
 
     }
-    //sequence
+    //phisics
+
+    void Move()
+    {
+
+        Velocity *= Friction;
+        _rigidbody.velocity = Velocity;
+        //_rigidbody.S
+    }
+    //---------------------------------------------------------
+    //sequence    
+    //---------------------------------------------------------
     void SetParams(){
         //params初期化
         Hp = 100;

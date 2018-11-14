@@ -24,7 +24,7 @@ public class MstUnitRecord : IMasterRecord
     public string jobname { get; set; }
 }
 [Serializable]
-[MasterPath("/Master/mst_func.json")]
+[MasterPath("/Master/mst_function.json")]
 public class MstFunctionRecord : IMasterRecord
 {
     public int id { get; set; }

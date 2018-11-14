@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
+//stateless
+//Exception : 初期化してください =>InitMasterdataAsync
 public class MasterdataManager : SingletonMonoBehaviour<MasterdataManager>
 {
  //   Dictionary<Type,MasterTable<>>
