@@ -14,29 +14,46 @@ public class SaveDataManager : SingletonMonoBehaviour<SaveDataManager>
 
     }
 
+    private readonly Dictionary<DataType, string> _firstData = new Dictionary<DataType, string>()
+    {
+        {DataType.Program,""},
+        {DataType.Command,"0,1" }
+    };
     public void SaveAnyway()
     {
 
     }
-
-    public IEnumerator Save(DataType type,string data,bool checkOverride) 
+    //pageは0から
+    public IEnumerator Save(DataType type,int page,string data,bool checkOverride) 
     {
         if (PlayerPrefs.HasKey(type.ToString()))
         {
             //Todo:上書きしますか？ダイアログ
         }
-        PlayerPrefs.SetString(type.ToString(),data);
+        PlayerPrefs.SetString($"{type.ToString()}_{page}",data);
         PlayerPrefs.Save();
         yield return null;
     }
 
-    public string Load(DataType type)
+    string FirstData(DataType type, int page)
     {
-        if (PlayerPrefs.HasKey(type.ToString()))
+        if (_firstData.ContainsKey(type))
         {
-            return PlayerPrefs.GetString(type.ToString());
+            return _firstData[type];
         }
 
+        return "";
+    }
+    public string Load(DataType type,int page)
+    {
+        if (PlayerPrefs.HasKey($"{type.ToString()}_{page}"))
+        {
+            return PlayerPrefs.GetString($"{type.ToString()}_{page}");
+        }
+        else
+        {
+            return FirstData(type, page);
+        }
         return "";
     }
 }

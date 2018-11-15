@@ -7,8 +7,8 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
     {
         Init,
         Wait,
-        SelectList,
-        SelectView,
+        SelectCommandList,
+        SelectProgramView,
         Save,
         End
     }
@@ -23,6 +23,7 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
     private List<ProgramFormat.OrderFormat> _commandList;
     private TouchState _touchState = TouchState.None;
     [SerializeField] private ProgramViewer _programView;
+    [SerializeField] private CommandListViewer _commandListViewer;
     //CommandListViewer
     //UnitProfileViewer
 
@@ -41,13 +42,15 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
     {
         _program = new ProgramFormat();
         _commandList = new List<ProgramFormat.OrderFormat>();
-        InitCommandData();
-        InitView();
-
+        InitCommandListData();
+        InitProgramData();
+        InitProgramView();
+        InitCommandListView();
+        Next(State.Wait);
         yield return null;
     }
 
-    IEnumerator SelectList()
+    IEnumerator SelectCommandList()
     {
         switch (_touchState)
         {
@@ -63,7 +66,7 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
         Next(State.Wait);
         yield return null;
     }
-    IEnumerator SelectView()
+    IEnumerator SelectProgramView()
     {
         switch (_touchState)
         {
@@ -82,12 +85,24 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
         Next(State.Wait);
         yield return null;
     }
+
+    IEnumerator Save()
+    {
+        yield return SaveProgram(Interpreter.Stringify(_program));
+        Next(State.Wait);
+        yield return null;
+    }
+
+    IEnumerator Exit()
+    {
+        yield return SaveProgram(Interpreter.Stringify(_program));
+    }
     //---------------------------------------------------------
     //methods
     //---------------------------------------------------------
-    void InitCommandData()
+    void InitCommandListData()
     {
-        string[] commands = "0,1,2,3".Split(',');
+        string[] commands = SaveDataManager.Instance.Load(SaveDataManager.DataType.Command,0).Split(',');
         //Todo:master対応
         foreach (var command in commands)
         {
@@ -96,22 +111,48 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
         }
         
     }
-    void InitView()
+
+    void InitProgramData()
+    {
+        string program = SaveDataManager.Instance.Load(SaveDataManager.DataType.Program, 0);
+        _program = Interpreter.Parse(program);
+    }
+    void InitProgramView()
     {
         if (_program == null)
         {
             return;
         }
 
+        if (_programView == null)
+        {
+            return;
+        }
         for (int i = 0; i < _program.OrderList.GetLength(0); i++)
         {
             for (int j = 0; j < _program.OrderList.GetLength(1); j++)
             {
+                if (_program.OrderList[i, j] == null)
+                {
+                    continue;
+                }
+
                 _programView.SetBlock(i,j,_program.OrderList[i,j]);
                 _programView.SetupButton(OnTapViewCommand);
             }
         }
         
+    }
+    private void InitCommandListView()
+    {
+        if (_commandListViewer == null)
+        {
+            return;
+        }
+        for (int i = 0; i < _commandList.Count; i++)
+        {
+            _commandListViewer.SetBlock(i,_commandList[i]); 
+        }
     }
 
     IEnumerator Switch(int x,int y,ProgramFormat.OrderFormat format)
@@ -128,16 +169,17 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
         _programView.SetBlock(x,y, _program.OrderList[x, y]);
         yield return null;
     }
+
+    IEnumerator SaveProgram(string program)
+    {
+        yield return SaveDataManager.Instance.Save(SaveDataManager.DataType.Program, 0, program, true);
+    }
     //---------------------------------------------------------
     //EDITING
     //---------------------------------------------------------
     #region unfinished
 
-    private void InitList()
-    {
-
-    }
-
+  
     private void InitProfile()
     {
 
@@ -146,7 +188,7 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
     {
         if (Current == State.Wait)
         {
-            Next(State.SelectList);
+            Next(State.SelectCommandList);
         }
     }
 
@@ -156,7 +198,7 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
         {
             _viewX = x;
             _viewY = y;
-            Next(State.SelectView);
+            Next(State.SelectProgramView);
         }
     }
 

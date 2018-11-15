@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
@@ -18,14 +19,18 @@ public class CommandListViewer : MonoBehaviour
     [SerializeField] private GridLayoutGroup _listRoot;
     [SerializeField] private SpriteAtlas _atlas;
     private List<Image> _blockList = new List<Image>();
-
     //---------------------------------------------------------
     //Requests
     //---------------------------------------------------------
     public void SetBlock(int x,ProgramFormat.OrderFormat order)
     {
         //Master
-        string path = "";
+        var record = MasterdataManager.Records<MstFunctionRecord>().FirstOrDefault(_ => _.functionkey == order.key);
+        if (record == null)
+        {
+            return;
+        }
+        string path = record.imagepath;
         SetImage(x,path);
     }
 
@@ -46,10 +51,10 @@ public class CommandListViewer : MonoBehaviour
     //---------------------------------------------------------
     void Awake()
     {
-        MakeField(listSize);
+        MakeList(listSize);
     }
 
-    void MakeField(int num)
+    void MakeList(int num)
     {
         _listRoot.transform.DestroyAllChildren();
 

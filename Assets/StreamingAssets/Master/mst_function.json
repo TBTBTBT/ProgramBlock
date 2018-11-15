@@ -4,13 +4,15 @@
 "functionkey":"v0",
 "actionkey":"",
 "name":"Move",
-"waitframe":10
+"waitframe":10,
+"imagepath":"img_act_00"
 },
 {
 "id":1,
 "functionkey":"v10",
 "actionkey":"",
 "name":"Target",
-"waitframe":10
+"waitframe":10,
+"imagepath":"img_act_01"
 }
 ]}

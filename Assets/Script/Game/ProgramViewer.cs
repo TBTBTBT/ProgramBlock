@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.U2D;
@@ -26,9 +27,14 @@ public class ProgramViewer : MonoBehaviour
     //---------------------------------------------------------
     public void SetBlock(int x, int y, ProgramFormat.OrderFormat order)
     {
-        //Master
-        string path = "";
-        SetImage(x,y,path);
+        var table = MasterdataManager.Records<MstFunctionRecord>();//.FirstOrDefault(_ => _.functionkey == order.key);
+        var record = table.FirstOrDefault(_ => _.functionkey == order.key);
+        if (record == null)
+        {
+            return;
+        }
+        string path = record.imagepath;
+        SetImage(x,y, path);
     }
 
     public void SetupButton(Action<int,int> cb)

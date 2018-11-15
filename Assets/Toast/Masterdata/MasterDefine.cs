@@ -32,6 +32,7 @@ public class MstFunctionRecord : IMasterRecord
     public string actionkey { get; set; }//見た目
     public string name { get; set; }
     public int waitframe { get; set; }
+    public string imagepath { get; set; }
 
 }
 [Serializable]

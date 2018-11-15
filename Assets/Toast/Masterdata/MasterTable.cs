@@ -31,8 +31,11 @@ public class MasterTable<T> where T : class, IMasterRecord
         string assetPath = Application.streamingAssetsPath + path;
         Debug.Log("[Master] load path : " + assetPath);
         string text = System.IO.File.ReadAllText(assetPath);
-        // Debug.Log(text);
         Records = JsonUtility.FromJson<Master<T>>(text);
+        if (Records == null)
+        {
+            Records = new Master<T>(){Records = new T[0]};
+        }
         //Debug.Log(Records.Records);
     }
 }

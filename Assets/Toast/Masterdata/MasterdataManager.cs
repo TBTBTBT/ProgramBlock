@@ -19,6 +19,11 @@ public class MasterdataManager : SingletonMonoBehaviour<MasterdataManager>
         }
         return null;*/
     }
+
+    public static T[] Records<T>() where T : class, IMasterRecord
+    {
+        return MasterTable<T>.Instance.Records.Records;
+    }
     /*
     public static MstBulletRecord[] MstBulletRecordTable = {
         new MstBulletRecord(){id = 10,gravy = -20f,gravx = 0.95f,rad = 10,weight = 1f}
@@ -33,6 +38,12 @@ public class MasterdataManager : SingletonMonoBehaviour<MasterdataManager>
     */
 
     //initialize
+    protected override void Awake()
+    {
+
+        base.Awake();
+        InitMasterdata();//Todo:データがでかくなってきたら非同期で別スクリプトから読むようにする。
+    }
     void InitRecord<T>() where T:class,IMasterRecord
     {
         Attribute[] attributes = Attribute.GetCustomAttributes(typeof(T), typeof(MasterPath));
@@ -47,8 +58,9 @@ public class MasterdataManager : SingletonMonoBehaviour<MasterdataManager>
         {
             return;
         }
-       // Debug.Log(typeof(T) + "Init");
+        Debug.Log("Load Master : "+typeof(T));
         MasterTable<T>.Instance.Init(path.Path);
+        Debug.Log(MasterTable<T>.Instance.Records.Records.Length);
     }
     static Type[] GetInterfaces<T>()
     {
@@ -76,7 +88,6 @@ public class MasterdataManager : SingletonMonoBehaviour<MasterdataManager>
             yield break;
 
         }
-        Debug.Log("GetMethod.");
         yield return null;
         foreach (var type in masterDataList)
         {
@@ -88,26 +99,26 @@ public class MasterdataManager : SingletonMonoBehaviour<MasterdataManager>
         Debug.Log("Initialized.");
     }
 
-    void InitMasterdata(Type[] masterDataList)
+    public void InitMasterdata()
     {
-        var method = typeof(MasterdataManager).GetMethod("InitRecord",BindingFlags.Public |
-                                                          BindingFlags.NonPublic |
-                                                          BindingFlags.Instance |
-                                                          BindingFlags.Static |
-                                                          BindingFlags.DeclaredOnly);
+        var masterDataList = FindMasterdata();
+        Debug.Log("Listup Masterdata Class.");
+        var method = typeof(MasterdataManager).GetMethod("InitRecord", BindingFlags.Public |
+                                                                       BindingFlags.NonPublic |
+                                                                       BindingFlags.Instance |
+                                                                       BindingFlags.Static |
+                                                                       BindingFlags.DeclaredOnly);
         if (method == null)
         {
             Debug.Log("null");
-            return;
 
         }
-        
         foreach (var type in masterDataList)
         {
             var generic = method.MakeGenericMethod(type);
             generic.Invoke(this, null);
-           // InitRecord<>();
         }
-        
+        Debug.Log("Initialized.");
+
     }
 }
