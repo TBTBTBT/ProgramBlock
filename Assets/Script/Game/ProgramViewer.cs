@@ -27,10 +27,12 @@ public class ProgramViewer : MonoBehaviour
     //---------------------------------------------------------
     public void SetBlock(int x, int y, ProgramFormat.OrderFormat order)
     {
+
         var table = MasterdataManager.Records<MstFunctionRecord>();//.FirstOrDefault(_ => _.functionkey == order.key);
         var record = table.FirstOrDefault(_ => _.functionkey == order.key);
         if (record == null)
         {
+            Debug.Log("MstFunctionIsNull");
             return;
         }
         string path = record.imagepath;
@@ -39,6 +41,7 @@ public class ProgramViewer : MonoBehaviour
 
     public void SetupButton(Action<int,int> cb)
     {
+        Debug.Log("SetButtons");
         for (int i = 0; i < _blockList.Count; i++)
         {
             for (int j = 0; j < _blockList[i].Count; j++)
@@ -63,12 +66,14 @@ public class ProgramViewer : MonoBehaviour
     void MakeField(int w, int h)
     {
         _blockRoot.transform.DestroyAllChildren();
-        var list = new List<Image>();
+
 
         for (int i = 0; i < w; i++)
         {
+            var list = new List<Image>();
             for (int j = 0; j < h; j++)
             {
+
                 var go = new GameObject() { name = $"{i}_{j}" };
                 var rect = go.AddComponent<RectTransform>();
                 var img = go.AddComponent<Image>();
@@ -84,18 +89,22 @@ public class ProgramViewer : MonoBehaviour
     }
     void SetImage(int x, int y, string path)
     {
+        //Debug.Log("SetBlock");
         if (!_blockList.InRange(x))
         {
             return;
         }
+        //Debug.Log(_blockList.Count);
         if (!_blockList[x].InRange(y))
         {
             return;
         }
+        //Debug.Log("SetBlock");
         if (_atlas == null)
         {
             return;
         }
+        //Debug.Log("SetBlock");
         var sprite = _atlas?.GetSprite(path);
         if (sprite == null)
         {

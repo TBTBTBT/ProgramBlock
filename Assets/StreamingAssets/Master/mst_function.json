@@ -1,6 +1,14 @@
 {"Records":[
 {
 "id":0,
+"functionkey":"n",
+"actionkey":"",
+"name":"None",
+"waitframe":0,
+"imagepath":"img_act_dmy"
+},
+{
+"id":1,
 "functionkey":"v0",
 "actionkey":"",
 "name":"Move",
@@ -8,7 +16,7 @@
 "imagepath":"img_act_00"
 },
 {
-"id":1,
+"id":2,
 "functionkey":"v10",
 "actionkey":"",
 "name":"Target",

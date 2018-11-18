@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManager.State> {
     public enum State
@@ -24,17 +25,25 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
     private TouchState _touchState = TouchState.None;
     [SerializeField] private ProgramViewer _programView;
     [SerializeField] private CommandListViewer _commandListViewer;
+    [SerializeField] private GameManager _preview;
     //CommandListViewer
     //UnitProfileViewer
 
     private int _viewX = 0;//なくしたい
     private int _viewY = 0;
-
-    private int _listPos = 0;
+    private int _commandIndex = 0;
     //---------------------------------------------------------
     //requests
     //---------------------------------------------------------
-
+    public void StartPreview(){
+        GameManager.UnitData data = new GameManager.UnitData()
+        {
+            id = 0,
+            program = "0,0:v0:0:1,0;1,0:v10:0:0,0"
+        };
+        _preview.Setup(new List<GameManager.UnitData>{data});
+        _preview.Run();
+    }
     //---------------------------------------------------------
     //states
     //---------------------------------------------------------
@@ -55,33 +64,37 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
         switch (_touchState)
         {
             case TouchState.None:
-                _touchState = TouchState.SelectViewCommand;
+                _touchState = TouchState.SelectListCommand;
                 break;
             case TouchState.SelectListCommand:
+
                 break;
             case TouchState.SelectViewCommand:
+                _touchState = TouchState.None;
                 break;
         }
-        _touchState = TouchState.None;
         Next(State.Wait);
         yield return null;
     }
     IEnumerator SelectProgramView()
     {
+        Debug.Log(_touchState);
         switch (_touchState)
         {
             case TouchState.None:
                 _touchState = TouchState.SelectViewCommand;
                 break;
             case TouchState.SelectListCommand:
-                yield return Switch(_viewX, _viewY, null);
+                _touchState = TouchState.None;
+                yield return Switch(_viewX, _viewY, _commandList[_commandIndex]);
+
                 break;
             case TouchState.SelectViewCommand:
-                
+
+                _touchState = TouchState.None;
                 break;
         }
 
-        _touchState = TouchState.None;
         Next(State.Wait);
         yield return null;
     }
@@ -107,7 +120,7 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
         foreach (var command in commands)
         {
             MstFunctionRecord func = MasterdataManager.Get<MstFunctionRecord>(int.Parse(command));
-            _commandList.Add(new ProgramFormat.OrderFormat() { key = ""});
+            _commandList.Add(new ProgramFormat.OrderFormat() { key = func.functionkey});
         }
         
     }
@@ -138,10 +151,9 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
                 }
 
                 _programView.SetBlock(i,j,_program.OrderList[i,j]);
-                _programView.SetupButton(OnTapViewCommand);
             }
         }
-        
+        _programView.SetupButton(OnTapViewCommand);
     }
     private void InitCommandListView()
     {
@@ -149,10 +161,12 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
         {
             return;
         }
-        for (int i = 0; i < _commandList.Count; i++)
+        _commandListViewer.SetupList(_commandList.Count, (num, go) =>
         {
-            _commandListViewer.SetBlock(i,_commandList[i]); 
-        }
+           // Debug.Log(_commandList[num]);
+            _commandListViewer.SetImage(go.GetComponent<Image>(), _commandList[num]);
+            _commandListViewer.SetupButton(num,go.GetComponent<Button>(), OnTapCommandList);
+        });
     }
 
     IEnumerator Switch(int x,int y,ProgramFormat.OrderFormat format)
@@ -163,13 +177,26 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
             yield break;
         }
         //Todo:OrderList[]indexCheck
+        if (_program.OrderList[x, y] == null)
+        {
+            _program.OrderList[x, y] = new ProgramFormat.OrderFormat();
+        }
         _program.OrderList[x, y].key = format.key;
         _program.OrderList[x, y].param = format.param;
         //矢印はそのまま
         _programView.SetBlock(x,y, _program.OrderList[x, y]);
         yield return null;
     }
-
+    IEnumerator SetArrow(Vector2Int from, Vector2Int yes)
+    {
+        yield return SetArrow(from,yes, new Vector2Int(0,0));
+    }
+    IEnumerator SetArrow(Vector2Int from,Vector2Int yes, Vector2Int no)
+    {
+        _program.OrderList[from.x, from.y].yes = yes;
+        _program.OrderList[from.x, from.y].no = no;
+        yield return null;
+    }
     IEnumerator SaveProgram(string program)
     {
         yield return SaveDataManager.Instance.Save(SaveDataManager.DataType.Program, 0, program, true);
@@ -188,6 +215,8 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
     {
         if (Current == State.Wait)
         {
+            _commandIndex = pos;
+            Debug.Log(pos);
             Next(State.SelectCommandList);
         }
     }
@@ -196,6 +225,7 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
     {
         if (Current == State.Wait)
         {
+            Debug.Log(x+","+y);
             _viewX = x;
             _viewY = y;
             Next(State.SelectProgramView);

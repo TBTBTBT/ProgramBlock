@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class 
-    InitSequence : MonoBehaviourWithStatemachine<InitSequence.State>
+public class InitSequence : MonoBehaviourWithStatemachine<InitSequence.State>
 {
     public enum State
     {
@@ -12,11 +11,11 @@ public class
         End,
     }
 
-    protected void Awake()
-    {
-        base.Awake();
+    //protected void Awake()
+    //{
+    //    base.Awake();
         //MasterdataManager.Instance.InitMasterdata();
-    }
+    //}
     IEnumerator Init()
     {
         yield return null;

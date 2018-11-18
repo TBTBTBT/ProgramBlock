@@ -24,7 +24,7 @@ public class MasterTable<T> where T : class, IMasterRecord
 
     public T Get(int id)
     {
-        return Records.Records.FirstOrDefault(_ => _.id == id);
+        return Records.Records.FirstOrDefault(_ => _.Id == id);
     }
     public void Init(string path)
     {
@@ -42,8 +42,7 @@ public class MasterTable<T> where T : class, IMasterRecord
 
 public interface IMasterRecord
 {
-    int id { get; set; }
-
+    int Id { get; }
 }
 
 [Serializable]

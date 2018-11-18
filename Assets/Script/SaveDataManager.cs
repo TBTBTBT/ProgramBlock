@@ -17,7 +17,7 @@ public class SaveDataManager : SingletonMonoBehaviour<SaveDataManager>
     private readonly Dictionary<DataType, string> _firstData = new Dictionary<DataType, string>()
     {
         {DataType.Program,""},
-        {DataType.Command,"0,1" }
+        {DataType.Command,"1,2" }
     };
     public void SaveAnyway()
     {
