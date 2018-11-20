@@ -18,16 +18,26 @@ public class ProgramViewer : MonoBehaviour
     private float padding = 10;
     private int programSize = 5;
     //private readonly string atlasPath = ""
-    [SerializeField] private GridLayoutGroup _blockRoot;
+    [SerializeField] private GridLayoutGroup _commandRoot;
     [SerializeField] private SpriteAtlas _atlas;
-    private List<List<Image>> _blockList = new List<List<Image>>();
+    [SerializeField] private Command _commandPrefab;
+    private List<List<Command>> _commandList = new List<List<Command>>();
 
     //---------------------------------------------------------
     //Requests
     //---------------------------------------------------------
     public void SetBlock(int x, int y, ProgramFormat.OrderFormat order)
     {
-
+        if (!_commandList.InRange(x))
+        {
+            return;
+        }
+        if (!_commandList[x].InRange(y))
+        {
+            return;
+        }
+        _commandList[x][y].Set(order);
+        /*
         var table = MasterdataManager.Records<MstFunctionRecord>();//.FirstOrDefault(_ => _.functionkey == order.key);
         var record = table.FirstOrDefault(_ => _.functionkey == order.key);
         if (record == null)
@@ -35,22 +45,25 @@ public class ProgramViewer : MonoBehaviour
             Debug.Log("MstFunctionIsNull");
             return;
         }
-        string path = record.imagepath;
-        SetImage(x,y, path);
+        string path = record.imagepath;*/
+
+        //SetImage(x,y, path);
     }
 
     public void SetupButton(Action<int,int> cb)
     {
         Debug.Log("SetButtons");
-        for (int i = 0; i < _blockList.Count; i++)
+        for (int i = 0; i < _commandList.Count; i++)
         {
-            for (int j = 0; j < _blockList[i].Count; j++)
+            for (int j = 0; j < _commandList[i].Count; j++)
             {
+
                 int x = i;
                 int y = j;
-                var button = _blockList[i][j].GetComponent<Button>();
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(()=>cb(x,y));
+                _commandList[i][j].SetButtonCallback(() =>
+                {
+                    cb(x, y);
+                });
             }
         }
     }
@@ -65,15 +78,18 @@ public class ProgramViewer : MonoBehaviour
 
     void MakeField(int w, int h)
     {
-        _blockRoot.transform.DestroyAllChildren();
+        _commandRoot.transform.DestroyAllChildren();
 
 
         for (int i = 0; i < w; i++)
         {
-            var list = new List<Image>();
+            var list = new List<Command>();
             for (int j = 0; j < h; j++)
             {
-
+                var command = Instantiate(_commandPrefab, _commandRoot.transform).GetComponent<Command>();
+                command.Set(0);
+                list.Add(command);
+                /*
                 var go = new GameObject() { name = $"{i}_{j}" };
                 var rect = go.AddComponent<RectTransform>();
                 var img = go.AddComponent<Image>();
@@ -82,20 +98,21 @@ public class ProgramViewer : MonoBehaviour
                 go.transform.parent = _blockRoot.transform;
                 rect.sizeDelta = new Vector2(rectSize, rectSize);
                 button.targetGraphic = img;
-                list.Add(img);
+                list.Add(img);*/
             }
-            _blockList.Add(list);
+            _commandList.Add(list);
         }
     }
+    /*
     void SetImage(int x, int y, string path)
     {
         //Debug.Log("SetBlock");
-        if (!_blockList.InRange(x))
+        if (!_commandList.InRange(x))
         {
             return;
         }
         //Debug.Log(_blockList.Count);
-        if (!_blockList[x].InRange(y))
+        if (!_commandList[x].InRange(y))
         {
             return;
         }
@@ -111,5 +128,5 @@ public class ProgramViewer : MonoBehaviour
             return;
         }
         _blockList[x][y].sprite = sprite;
-    }
+    }*/
 }
