@@ -9,6 +9,7 @@ using UnityEngine.U2D;
 //stateless
 public class Command : MonoBehaviour
 {
+    [SerializeField] Image _base;
     [SerializeField] Image _icon;
     [SerializeField] Button _button;
     [SerializeField] List<Image> _arrow;// 0 yes 1 no
@@ -52,7 +53,11 @@ public class Command : MonoBehaviour
         }
         _icon.sprite = sprite;
     }
-    void SetArrow(){
+    public void SetArrow(Vector2Int next,bool loop){
 
+    }
+    public void SetArrow(ProgramFormat.OrderFormat order, bool loop)
+    {
+        //order.next
     }
 }
