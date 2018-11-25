@@ -38,8 +38,12 @@ public static class Interpreter
     //命令を実行し次の行を返す
     public static Vector2Int Execute(UnitCore self,ProgramFormat.OrderFormat order, out int wait)
     {
-        //マスターから引く
+        //マスターから引く 
         Vector2Int next = new Vector2Int(0, 0);
+        wait = 40;
+        if(order == null){
+            return next;
+        }
         if(OrderMaster.Functions.ContainsKey(order.key)){
             if (OrderMaster.Functions[order.key](self, order.param))
             {
@@ -59,7 +63,14 @@ public static class Interpreter
         for (int i = 0; i < program.OrderList.GetLength(0);i ++){
             for (int j = 0; j < program.OrderList.GetLength(1); j++)
             {
-                str += program.OrderList[i, j];
+                if(program.OrderList[i, j] == null){
+                    continue;
+                }
+                str += $"{i},{j}:";
+                str += $"{ program.OrderList[i, j].key}:";
+                str += $"{ program.OrderList[i, j].param}:";
+                str += $"{ program.OrderList[i, j].yes.x},{program.OrderList[i, j].yes.y}:";
+                str += $"{ program.OrderList[i, j].no.x},{program.OrderList[i, j].no.y};";
             }
 
         }

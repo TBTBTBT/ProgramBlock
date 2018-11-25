@@ -3,13 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManager.State> {
+public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManager.State>
+{
     public enum State
     {
         Init,
         Wait,
         SelectCommandList,
+        DragCommandList,
+        ReleaseCommandList,
         SelectProgramView,
+        DragProgramView,
+        ReleaseProgramView,
+        Preview,
         Save,
         End
     }
@@ -26,23 +32,72 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
     [SerializeField] private ProgramViewer _programView;
     [SerializeField] private CommandListViewer _commandListViewer;
     [SerializeField] private GameManager _preview;
-    //CommandListViewer
     //UnitProfileViewer
 
     private int _viewX = 0;//なくしたい
     private int _viewY = 0;
     private int _commandIndex = 0;
+    private Vector2 _dragPos;
     //---------------------------------------------------------
     //requests
     //---------------------------------------------------------
-    public void StartPreview(){
-        GameManager.UnitData data = new GameManager.UnitData()
+    public void StartPreview()
+    {
+        if (Current == State.Wait)
         {
-            id = 0,
-            program = "0,0:v0:0:1,0;1,0:v10:0:0,0"
-        };
-        _preview.Setup(new List<GameManager.UnitData>{data});
-        _preview.Run();
+            Next(State.Preview);
+        }
+    }
+    void OnTapCommandList(int pos)
+    {
+        if (Current == State.Wait)
+        {
+            _commandIndex = pos;
+            Debug.Log(pos);
+            Next(State.SelectCommandList);
+        }
+    }
+    void OnDragCommandList(int pos, Vector2 touchPos)
+    {
+        _dragPos = touchPos;
+        if (Current == State.SelectCommandList)
+        {
+            Next(State.DragCommandList);
+        }
+    }
+    void OnReleaseCommandList(int pos)
+    {
+        if (Current == State.SelectCommandList ||
+            Current == State.DragCommandList)
+        {
+            Next(State.ReleaseCommandList);
+        }
+    }
+    void OnTapProgramView(int x, int y)
+    {
+        if (Current == State.Wait)
+        {
+            Debug.Log(x + "," + y);
+            _viewX = x;
+            _viewY = y;
+            Next(State.SelectProgramView);
+        }
+    }
+    void OnDragProgramView(int x, int y,Vector2 touchPos)
+    {
+        _dragPos = touchPos;
+        if (Current == State.SelectProgramView)
+        {
+            Next(State.DragProgramView);
+        }
+    }
+    void OnReleaseProgramView(int x, int y)
+    {
+        if (Current == State.SelectProgramView ||
+            Current == State.DragProgramView)
+        {
+            Next(State.ReleaseProgramView);
+        }
     }
     //---------------------------------------------------------
     //states
@@ -52,9 +107,10 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
         _program = new ProgramFormat();
         _commandList = new List<ProgramFormat.OrderFormat>();
         InitCommandListData();
+        InitCommandListView();
         InitProgramData();
         InitProgramView();
-        InitCommandListView();
+
         Next(State.Wait);
         yield return null;
     }
@@ -73,6 +129,16 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
                 _touchState = TouchState.None;
                 break;
         }
+        // Next(State.Wait);
+        yield return null;
+    }
+    IEnumerator DragCommandList()
+    {
+        yield return null;
+    }
+    IEnumerator ReleaseCommandList()
+    {
+
         Next(State.Wait);
         yield return null;
     }
@@ -93,12 +159,38 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
 
                 _touchState = TouchState.None;
                 break;
+        }   
+    
+        yield return null;
+    }
+    IEnumerator DragProgramView()
+    {
+        Vector2 dragStart = _dragPos;
+        while(true){
+            Debug.Log(_dragPos - dragStart);
+            yield return null;
         }
+
+    }
+
+    IEnumerator ReleaseProgramView()
+    {
 
         Next(State.Wait);
         yield return null;
     }
-
+    IEnumerator Preview()
+    {
+        GameManager.UnitData data = new GameManager.UnitData()
+        {
+            id = 0,
+            program = Interpreter.Stringify(_program)
+        };
+        //Debug.Log(Interpreter.Stringify(_program));
+        _preview.Setup(new List<GameManager.UnitData> { data });
+        _preview.Run();
+        yield return null;
+    }
     IEnumerator Save()
     {
         yield return SaveProgram(Interpreter.Stringify(_program));
@@ -115,14 +207,15 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
     //---------------------------------------------------------
     void InitCommandListData()
     {
-        string[] commands = SaveDataManager.Instance.Load(SaveDataManager.DataType.Command,0).Split(',');
+        string[] commands = SaveDataManager.Instance.Load(SaveDataManager.DataType.Command, 0).Split(',');
         //Todo:master対応
         foreach (var command in commands)
         {
+            Debug.Log("command");
             MstFunctionRecord func = MasterdataManager.Get<MstFunctionRecord>(int.Parse(command));
-            _commandList.Add(new ProgramFormat.OrderFormat() { key = func.functionkey});
+            _commandList.Add(new ProgramFormat.OrderFormat() { key = func.functionkey });
         }
-        
+
     }
 
     void InitProgramData()
@@ -141,19 +234,32 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
         {
             return;
         }
+        //表の画像とコールバック設定
         for (int i = 0; i < _program.OrderList.GetLength(0); i++)
         {
             for (int j = 0; j < _program.OrderList.GetLength(1); j++)
             {
-                if (_program.OrderList[i, j] == null)
-                {
-                    continue;
-                }
 
-                _programView.SetBlock(i,j,_program.OrderList[i,j]);
+                _programView.SetCommandImage(i, j, _program.OrderList[i, j]);
+                int x = i;
+                int y = j;
+                _programView.SetCommandCallback(i, j, Command.CallbackType.PointerDown, pos =>
+                {
+                    OnTapProgramView(x, y);
+                });
+
+                _programView.SetCommandCallback(i, j, Command.CallbackType.Drag, pos =>
+                {
+                    OnDragProgramView(x, y,pos);
+                    Debug.Log(pos);
+                });
+                _programView.SetCommandCallback(i, j, Command.CallbackType.PointerUp, pos =>
+                {
+                    OnReleaseProgramView(x, y);
+                });
             }
         }
-        _programView.SetupButton(OnTapViewCommand);
+        //_programView.SetCommandCallbackAll(OnTapProgramView);
     }
     private void InitCommandListView()
     {
@@ -161,31 +267,56 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
         {
             return;
         }
+        //表の画像とコールバック設定
         _commandListViewer.SetupList(_commandList.Count, (num, go) =>
         {
-           // Debug.Log(_commandList[num]);
-            _commandListViewer.SetImage(go.GetComponent<Image>(), _commandList[num]);
-            _commandListViewer.SetupButton(num,go.GetComponent<Button>(), OnTapCommandList);
+            Debug.Log(num);
+            _commandListViewer.SetupCommandImage(num, go.GetComponent<Command>(), _commandList[num]);
+            _commandListViewer.SetupCommandCallback(num, go.GetComponent<Command>(), Command.CallbackType.PointerDown, pos =>
+             {
+                 OnTapCommandList(num);
+             });
+            _commandListViewer.SetupCommandCallback(num, go.GetComponent<Command>(), Command.CallbackType.Drag, pos =>
+            {
+                OnDragCommandList(num,pos);
+            });
+            _commandListViewer.SetupCommandCallback(num, go.GetComponent<Command>(), Command.CallbackType.PointerUp, pos =>
+            {
+                OnReleaseCommandList(num);
+            });
         });
     }
 
-    IEnumerator Switch(int x,int y,ProgramFormat.OrderFormat format)
+    IEnumerator Switch(int x, int y, ProgramFormat.OrderFormat format)
     {
+        //データ
         if (format == null)
         {
             Debug.Log("null");
             yield break;
         }
+        SwitchData(x, y, format);
+        //見た目
+        SwitchView(x, y, format);
+       
+       
+       
+        yield return null;
+    }
+    void SwitchData(int x, int y, ProgramFormat.OrderFormat format){
         //Todo:OrderList[]indexCheck
         if (_program.OrderList[x, y] == null)
         {
             _program.OrderList[x, y] = new ProgramFormat.OrderFormat();
         }
+        Debug.Log(format.key);
         _program.OrderList[x, y].key = format.key;
         _program.OrderList[x, y].param = format.param;
         //矢印はそのまま
-        _programView.SetBlock(x,y, _program.OrderList[x, y]);
-        yield return null;
+    }
+    void SwitchView(int x, int y, ProgramFormat.OrderFormat format)
+    {
+        _programView.SetCommandImage(x, y, _program.OrderList[x, y]);
     }
     IEnumerator SetArrow(Vector2Int from, Vector2Int yes)
     {
@@ -211,26 +342,7 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
     {
 
     }
-    void OnTapCommandList(int pos)
-    {
-        if (Current == State.Wait)
-        {
-            _commandIndex = pos;
-            Debug.Log(pos);
-            Next(State.SelectCommandList);
-        }
-    }
 
-    void OnTapViewCommand(int x,int y)
-    {
-        if (Current == State.Wait)
-        {
-            Debug.Log(x+","+y);
-            _viewX = x;
-            _viewY = y;
-            Next(State.SelectProgramView);
-        }
-    }
 
 
     ProgramFormat LoadProgram(string path)

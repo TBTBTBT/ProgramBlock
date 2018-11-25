@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class ProgramFormat
 {
+    public static readonly int width = 6;
+    public static readonly int height = 4;
     public class OrderFormat
     {
         public Vector2Int yes = new Vector2Int(0,0);
@@ -12,7 +14,7 @@ public class ProgramFormat
         public string key = "";
         public int param = 0;
     }
-    public OrderFormat[,] OrderList = new OrderFormat[5,5];
+    public OrderFormat[,] OrderList = new OrderFormat[width,height];
 
     public void AddOrder(Vector2Int pos, string order,int param, Vector2Int next, Vector2Int next2 )
     {
