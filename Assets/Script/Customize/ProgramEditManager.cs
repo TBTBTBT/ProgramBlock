@@ -167,7 +167,19 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
     {
         Vector2 dragStart = _dragPos;
         while(true){
-            Debug.Log(_dragPos - dragStart);
+            if((_dragPos - dragStart).magnitude > 50){
+                Vector2 dist = _dragPos - dragStart;
+                int nextX = 0;
+                int nextY = 0;
+                if (Mathf.Abs(dist.x) > Mathf.Abs(dist.y)){
+                    nextX = Mathf.CeilToInt(Mathf.Sign(dist.x));
+                }else{
+                    nextY = Mathf.CeilToInt(Mathf.Sign(dist.y));
+                }
+                Debug.Log($"{_viewX + nextX} , {_viewY+ nextY}");
+
+            }
+
             yield return null;
         }
 
@@ -251,7 +263,6 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
                 _programView.SetCommandCallback(i, j, Command.CallbackType.Drag, pos =>
                 {
                     OnDragProgramView(x, y,pos);
-                    Debug.Log(pos);
                 });
                 _programView.SetCommandCallback(i, j, Command.CallbackType.PointerUp, pos =>
                 {
