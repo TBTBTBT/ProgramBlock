@@ -95,11 +95,16 @@ public class Command : MonoBehaviour,IDragHandlerInScrollRect,IPointerDownHandle
         _button.onClick.AddListener(cb);
     }*/
 
-    public void SetArrow(Vector2Int dist,bool yes,bool loop){
+    public void SetArrow(bool yes,Vector2Int dist){
         int index = yes ? 0 : 1;
         if(_arrow.InRange(index)){
-            var arrow = _arrow[index];
-            arrow.transform.localRotation.SetAxisAngle(new Vector3(0, 0, 1),0);
+            if (dist.sqrMagnitude == 0)
+            {
+                _arrow[index].SetActive(false);
+                return;
+            }
+            _arrow[index].SetActive(true);
+            _arrow[index].transform.localRotation = Quaternion.AngleAxis(MathUtil.PointToAngle(Vector2.zero,dist), new Vector3(0, 0, 1));
         }
     }
     public void SetCallback(CallbackType type, UnityAction<Vector2> cb){

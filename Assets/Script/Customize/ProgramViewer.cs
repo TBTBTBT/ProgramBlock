@@ -47,7 +47,19 @@ public class ProgramViewer : MonoBehaviour
         _commandList[x][y].SetCallback(type, cb);
        
     }
+    public void SetArrow(int x, int y, bool yes,Vector2Int dist)
+    {
+        if (!_commandList.InRange(x))
+        {
+            return;
+        }
+        if (!_commandList[x].InRange(y))
+        {
+            return;
+        }
+        _commandList[x][y].SetArrow(yes,dist);
 
+    }
     //---------------------------------------------------------
     //methods
     //---------------------------------------------------------

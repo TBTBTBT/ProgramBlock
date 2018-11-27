@@ -177,7 +177,7 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
                     nextY = Mathf.CeilToInt(Mathf.Sign(dist.y));
                 }
                 Debug.Log($"{_viewX + nextX} , {_viewY+ nextY}");
-
+                yield return SetArrow(new Vector2Int(_viewX,_viewY),new Vector2Int(nextX, nextY));
             }
 
             yield return null;
@@ -335,9 +335,17 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
     }
     IEnumerator SetArrow(Vector2Int from,Vector2Int yes, Vector2Int no)
     {
+        SetArrowData(from, yes, no);
+        SetArrowView(from, yes, no);
+        yield return null;
+    }
+    void SetArrowData(Vector2Int from, Vector2Int yes, Vector2Int no)
+    {
         _program.OrderList[from.x, from.y].yes = yes;
         _program.OrderList[from.x, from.y].no = no;
-        yield return null;
+    }
+    void SetArrowView(Vector2Int from,Vector2Int yes, Vector2Int no){
+        _programView.SetArrow(from.x, from.y,true,yes - from);
     }
     IEnumerator SaveProgram(string program)
     {
