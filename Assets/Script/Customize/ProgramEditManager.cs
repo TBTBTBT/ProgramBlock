@@ -120,14 +120,13 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
         switch (_touchState)
         {
             case TouchState.None:
+            case TouchState.SelectViewCommand:
                 _touchState = TouchState.SelectListCommand;
                 break;
             case TouchState.SelectListCommand:
 
                 break;
-            case TouchState.SelectViewCommand:
-                _touchState = TouchState.None;
-                break;
+
         }
         // Next(State.Wait);
         yield return null;
@@ -341,6 +340,9 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
     }
     void SetArrowData(Vector2Int from, Vector2Int yes, Vector2Int no)
     {
+        if(_program.OrderList[from.x, from.y] == null){
+            return;
+        }
         _program.OrderList[from.x, from.y].yes = yes;
         _program.OrderList[from.x, from.y].no = no;
     }
