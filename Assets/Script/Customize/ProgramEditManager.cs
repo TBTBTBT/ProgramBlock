@@ -176,7 +176,7 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
                     nextY = Mathf.CeilToInt(Mathf.Sign(dist.y));
                 }
                 Debug.Log($"{_viewX + nextX} , {_viewY+ nextY}");
-                yield return SetArrow(new Vector2Int(_viewX,_viewY),new Vector2Int(nextX, nextY));
+                yield return SetArrow(new Vector2Int(_viewX,_viewY),new Vector2Int(_viewX + nextX, _viewY + nextY));
             }
 
             yield return null;
