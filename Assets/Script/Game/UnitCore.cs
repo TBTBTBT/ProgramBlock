@@ -143,7 +143,7 @@ public class UnitCore : MonoBehaviourWithStatemachine<UnitCore.State> {
             if (wait == 0)
             {
                 _nowPointer = Interpreter.Execute(this,_program.OrderList[_nowPointer.x, _nowPointer.y],out wait);
-                Debug.Log(_nowPointer);
+//                Debug.Log($"{ _nowPointer},{_program.OrderList[_nowPointer.x, _nowPointer.y].key}");
             }
 
             if (wait > 0)

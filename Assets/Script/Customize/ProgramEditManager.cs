@@ -197,8 +197,14 @@ public class ProgramEditManager : MonoBehaviourWithStatemachine<ProgramEditManag
             id = 0,
             program = Interpreter.Stringify(_program)
         };
-        //Debug.Log(Interpreter.Stringify(_program));
-        _preview.Setup(new List<GameManager.UnitData> { data });
+        GameManager.UnitData sandbag = new GameManager.UnitData()
+        {
+            id = 1,
+            program = "",
+            teamId = 1
+        };
+        Debug.Log("program : "+Interpreter.Stringify(_program));
+        _preview.Setup(new List<GameManager.UnitData> { data, sandbag });
         _preview.Run();
         yield return null;
     }
